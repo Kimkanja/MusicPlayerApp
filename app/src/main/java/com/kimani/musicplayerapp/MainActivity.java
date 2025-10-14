@@ -137,6 +137,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
             Toast.makeText(this, "sorry, no songs found on this device!", Toast.LENGTH_LONG).show();
             // Hide the RecyclerView if no songs are found
             binding.recyclerViewSongs.setVisibility(View.GONE);
+            // Show the textViewNoSongs if no songs are found
             binding.textViewNoSongs.setVisibility(View.VISIBLE);
         } else {
             // Use a plurals resource for a grammatically correct toast message

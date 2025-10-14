@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">MusicPlayerApp:</string>
     <string name="device_songs">Your Device Songs</string>
+    <string name="no_song_found">Opps! There are no songs on your device.</string>
 </resources>

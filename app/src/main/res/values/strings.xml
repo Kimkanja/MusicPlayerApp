@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">MusicPlayerApp</string>
+    <string name="app_name">MusicPlayerApp:</string>
+    <string name="device_songs">Your Device Songs</string>
 </resources>

@@ -5,14 +5,14 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
-public class song implements Parcelable {
+public class Song implements Parcelable {
     public long id;
     public String title;
     public String artist;
     public String date;
     public long albumId;
 
-    public song(long id, String title, String artist, String date, long albumId) {
+    public Song(long id, String title, String artist, String date, long albumId) {
         this.id = id;
         this.title = title;
         this.artist = artist;
@@ -21,7 +21,7 @@ public class song implements Parcelable {
     }
 
 
-    protected song(Parcel in) {
+    protected Song(Parcel in) {
         id = in.readLong();
         title = in.readString();
         artist = in.readString();
@@ -29,15 +29,15 @@ public class song implements Parcelable {
         albumId = in.readLong();
     }
 
-    public static final Creator<song> CREATOR = new Creator<song>() {
+    public static final Creator<Song> CREATOR = new Creator<Song>() {
         @Override
-        public song createFromParcel(Parcel in) {
-            return new song(in);
+        public Song createFromParcel(Parcel in) {
+            return new Song(in);
         }
 
         @Override
-        public song[] newArray(int size) {
-            return new song[size];
+        public Song[] newArray(int size) {
+            return new Song[size];
         }
     };
 

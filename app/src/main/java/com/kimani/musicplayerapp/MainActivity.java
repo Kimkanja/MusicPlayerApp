@@ -1,6 +1,7 @@
 package com.kimani.musicplayerapp;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -134,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
 
         // Check if the song list is empty
         if (songList.isEmpty()) {
-            Toast.makeText(this, "sorry, no songs found on this device!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Sorry, No Music found on this Device!", Toast.LENGTH_LONG).show();
             // Hide the RecyclerView if no songs are found
             binding.recyclerViewSongs.setVisibility(View.GONE);
             // Show the textViewNoSongs if no songs are found
@@ -162,10 +163,10 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
         // TODO: Implement what happens when a song is clicked.
         // For example, start the PlayerActivity.
         //
-        // Intent intent = new Intent(this, PlayerActivity.class);
-        // intent.putExtra("SONG_POSITION", position);
-        // You might want to pass the whole list of songs or just the clicked one
-        // startActivity(intent);
+        Intent intent = new Intent(this, PlayerActivity.class);
+        intent.putParcelableArrayListExtra("songList", new ArrayList<>(songList));
+        intent.putExtra("position", position);
+        startActivity(intent);
 
         Toast.makeText(this, "Clicked on: " + songList.get(position).getTitle(), Toast.LENGTH_SHORT).show();
     }

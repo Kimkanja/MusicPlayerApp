@@ -7,38 +7,29 @@
     android:layout_height="match_parent"
     tools:context=".PlayerActivity">
 
-
+    <!-- FIX: Background now correctly fills the entire screen on any device. -->
     <ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="411dp"
-        android:layout_height="914dp"
-        android:background="@drawable/gradient_bg" />
-
-    <TextView
-        android:id="@+id/textView5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/start_time"
-        android:textColor="@color/white"
-        android:textSize="13sp"
-        android:textStyle="bold"
+        android:id="@+id/albumArtBg"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/gradient_bg"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.881"
-        app:layout_constraintStart_toEndOf="@+id/textView4"
-        app:layout_constraintTop_toBottomOf="@+id/WaveformSeekBar" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- FIX: Top buttons are constrained to the top corners with consistent margins. -->
     <ImageView
         android:id="@+id/backBtn"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginStart="44dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="70dp"
         android:background="@drawable/circle_bg"
-        android:padding="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/imageView6"
+        android:padding="15dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/imageView3"
-        app:layout_constraintVertical_bias="0.495"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/icon_arrow_back_ios_24"
         app:tint="@color/white" />
 
@@ -46,102 +37,95 @@
         android:id="@+id/favBtn"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/circle_bg"
         android:padding="12dp"
-        app:layout_constraintBottom_toTopOf="@+id/imageView6"
+        app:layout_constraintBottom_toBottomOf="@+id/backBtn"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.83"
-        app:layout_constraintStart_toEndOf="@+id/backBtn"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.495"
-        app:srcCompat="@drawable/fav_favorite_border_24"
+        app:layout_constraintTop_toTopOf="@+id/backBtn"
+        app:srcCompat="@drawable/icon_equilizer"
         app:tint="@color/white" />
 
+    <!-- FIX: Album art is centered and constrained below the top buttons. -->
+
+    <!-- FIX: Title is centered and constrained below the album art. -->
     <ImageView
-        android:id="@+id/imageView6"
-        android:layout_width="320dp"
-        android:layout_height="320dp"
+        android:id="@+id/albumArtPlayerImage"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="26dp"
+        android:layout_marginEnd="40dp"
         android:background="@drawable/circle_bg"
         android:scaleType="centerCrop"
-        app:layout_constraintBaseline_toBottomOf="@drawable/fav_favorite_border_24"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.245" />
+        app:layout_constraintTop_toBottomOf="@+id/backBtn" />
 
     <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
+        android:id="@+id/songTitleText"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:scrollHorizontally="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:maxLines="1"
         android:text="@string/title"
+        android:textAlignment="center"
         android:textColor="@color/white"
         android:textSize="30sp"
         android:textStyle="bold"
-        app:layout_constraintBaseline_toBottomOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/textView3"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView6"
-        app:layout_constraintVertical_bias="0.731" />
+        app:layout_constraintTop_toBottomOf="@+id/albumArtPlayerImage" />
 
+    <!-- FIX: Artist text is centered and constrained below the title. -->
     <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
+        android:id="@+id/songArtistText"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="36dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:text="@string/artist"
+        android:textAlignment="center"
         android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintBaseline_toBottomOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/WaveformSeekBar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <com.frolo.waveformseekbar.WaveformSeekBar
-        android:id="@+id/WaveformSeekBar"
-        android:layout_width="0dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        app:layout_constraintBaseline_toBottomOf="@+id/textView3"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:waveProgressColor="@color/white"
-        tools:layout_editor_absoluteY="604dp" />
+        app:layout_constraintTop_toBottomOf="@+id/songTitleText" />
 
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="44dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/start_time"
-        android:textColor="@color/white"
-        android:textSize="13sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@+id/imageView3"
-        app:layout_constraintTop_toBottomOf="@+id/WaveformSeekBar" />
+    <!-- FIX: Control buttons are constrained to the bottom of the screen. -->
 
+    <!-- FIX: WaveformSeekBar is correctly constrained above the bottom controls. -->
     <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/linearLayout"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="64dp"
-        android:layout_marginBottom="130dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="100dp"
         android:gravity="center"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView3"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.554"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent">
 
         <ImageButton
-            android:id="@+id/imageButton5"
-            android:layout_width="48dp"
+            android:id="@+id/repeatBtn"
+            android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
             android:background="@android:color/transparent"
@@ -149,8 +133,8 @@
             app:tint="@color/white" />
 
         <ImageButton
-            android:id="@+id/imageButton3"
-            android:layout_width="48dp"
+            android:id="@+id/previousBtn"
+            android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
             android:background="@android:color/transparent"
@@ -158,7 +142,7 @@
             app:tint="@color/white" />
 
         <ImageButton
-            android:id="@+id/imageButton"
+            android:id="@+id/playpauseBtn"
             android:layout_width="54dp"
             android:layout_height="54dp"
             android:layout_marginStart="24dp"
@@ -167,8 +151,8 @@
             app:srcCompat="@drawable/icon_play_24" />
 
         <ImageButton
-            android:id="@+id/imageButton4"
-            android:layout_width="48dp"
+            android:id="@+id/nextBtn"
+            android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
             android:background="@android:color/transparent"
@@ -176,13 +160,51 @@
             app:tint="@color/white" />
 
         <ImageButton
-            android:id="@+id/imageButton2"
-            android:layout_width="48dp"
+            android:id="@+id/shuffleBtn"
+            android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
             android:background="@android:color/transparent"
             app:srcCompat="@drawable/icon_shuffle_24"
             app:tint="@color/white" />
+
     </LinearLayout>
+
+    <com.frolo.waveformseekbar.WaveformSeekBar
+        android:id="@+id/waveformSeekBar"
+        android:layout_width="0dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="40dp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:waveProgressColor="@color/white" />
+
+    <!-- FIX: Time text is correctly aligned with the start and end of the seekbar. -->
+    <TextView
+        android:id="@+id/elapsedTimeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/start_time"
+        android:textColor="@color/white"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/waveformSeekBar"
+        app:layout_constraintTop_toBottomOf="@+id/waveformSeekBar" />
+
+    <TextView
+        android:id="@+id/songDurationtext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/start_time"
+        android:textColor="@color/white"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/waveformSeekBar"
+        app:layout_constraintTop_toBottomOf="@+id/waveformSeekBar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

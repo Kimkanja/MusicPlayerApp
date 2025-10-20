@@ -19,7 +19,10 @@
 
         <activity
             android:name=".PlayerActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:launchMode="singleTop"/>
+
         <activity
             android:name=".SplashActivity"
             android:exported="true">

@@ -89,6 +89,7 @@ public class PlayerActivity extends AppCompatActivity {
         binding.previousBtn.setOnClickListener(v -> playPrevious());
         binding.shuffleBtn.setOnClickListener(v -> toggleShuffle());
         binding.repeatBtn.setOnClickListener(v -> toggleRepeat());
+        binding.backBtn.setOnClickListener(v -> toggleBackBtn());
         binding.waveformSeekBar.setCallback(new WaveformSeekBar.Callback() {
 
             @Override
@@ -116,6 +117,9 @@ public class PlayerActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void toggleBackBtn() {
+        getOnBackPressedDispatcher().onBackPressed();    }
 
     private void toggleRepeat() {
         isRepeat = !isRepeat;

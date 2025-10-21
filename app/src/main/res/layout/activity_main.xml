@@ -8,8 +8,14 @@
     android:textAlignment="center"
     tools:context=".MainActivity">
 
-    <androidx.constraintlayout.widget.Group android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/song_backgroung" />
+
 
     <TextView
         android:id="@+id/textView"
@@ -19,6 +25,7 @@
         android:padding="3dp"
         android:textSize="20sp"
         android:textStyle="bold"
+        android:textColor="@color/white"
         android:text="@string/device_songs"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -27,16 +34,18 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewSongs"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:layout_marginStart="1dp"
         android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="1dp"
         android:layout_marginBottom="10dp"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" >
+        app:layout_constraintTop_toBottomOf="@+id/textView">
+
     </androidx.recyclerview.widget.RecyclerView>
 
     <TextView
@@ -46,11 +55,13 @@
         android:layout_marginTop="408dp"
         android:padding="3dp"
         android:textSize="18sp"
+        android:textColor="@color/white"
         android:textStyle="bold"
         android:visibility="invisible"
         android:text="@string/no_song_found"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -25,13 +25,14 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="70dp"
+        android:layout_marginTop="30dp"
         android:background="@drawable/circle_bg"
         android:padding="15dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/icon_arrow_back_ios_24"
-        app:tint="@color/white" />
+        app:tint="@color/white"
+        />
 
     <ImageView
         android:id="@+id/favBtn"
@@ -57,7 +58,7 @@
         android:layout_marginTop="26dp"
         android:layout_marginEnd="40dp"
         android:background="@drawable/circle_bg"
-        android:scaleType="fitCenter"
+        android:scaleType="centerCrop"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
@@ -69,7 +70,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="80dp"
         android:layout_marginEnd="24dp"
         android:singleLine="true"
         android:ellipsize="marquee"
@@ -85,7 +86,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/albumArtPlayerImage" />
+        app:layout_constraintTop_toTopOf="@id/albumArtBg" />
 
     <!-- FIX: Artist text is centered and constrained below the title. -->
     <TextView
@@ -115,7 +116,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="100dp"
+        android:layout_marginBottom="40dp"
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"

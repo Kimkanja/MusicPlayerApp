@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/bottom_home"
+        android:icon="@drawable/icon_home_24"
+        android:title="Home"/>
+
+    <item
+        android:id="@+id/bottom_playlist"
+        android:icon="@drawable/icon_playlist_play_24"
+        android:title="Playlist"/>
+
+    <item
+        android:id="@+id/bottom_online"
+        android:icon="@drawable/icon_online_24"
+        android:title="Online"/>
+
+    <item
+        android:id="@+id/bottom_profile"
+        android:icon="@drawable/icon_person_24"
+        android:title="Profile"/>
+
+
+</menu>

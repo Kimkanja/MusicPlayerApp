@@ -9,4 +9,6 @@
     <string name="musicplayerapp">MusicPlayerApp</string>
     <string name="description">Feel the rhythm, Live the sound.</string>
     <string name="startBtn">Start Listening</string>
+    <string name="song_title">song title</string>
+    <string name="artist_name">artist name</string>
 </resources>

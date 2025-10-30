@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
             switch (item.getItemId()){
                 case R.id.bottom_home:
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
-                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                    overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
                     finish();
                     return true;
                 case R.id.bottom_playlist:
@@ -188,9 +188,6 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
      */
     @Override
     public void OnItemClick(int position) {
-        // TODO: Implement what happens when a song is clicked.
-        // For example, start the PlayerActivity.
-        //
         Intent intent = new Intent(this, PlayerActivity.class);
         intent.putParcelableArrayListExtra("songList", new ArrayList<>(songList));
         intent.putExtra("position", position);

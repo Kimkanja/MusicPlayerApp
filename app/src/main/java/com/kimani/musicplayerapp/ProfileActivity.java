@@ -27,17 +27,17 @@ public class ProfileActivity extends AppCompatActivity {
             switch (item.getItemId()){
                 case R.id.bottom_home:
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
-                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                    overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
                     finish();
                     return true;
                 case R.id.bottom_playlist:
                     startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                    overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
                     finish();
                     return true;
                 case R.id.bottom_online:
                     startActivity(new Intent(getApplicationContext(), OnlineActivity.class));
-                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                    overridePendingTransition(R.anim.slide_in_left,R.anim.slide_out_right);
                     finish();
                     return true;
                 case R.id.bottom_profile:

@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.kimani.musicplayerapp.databinding.ActivityMainBinding;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
     private ActivityMainBinding binding;
     private SongAdapter adapter;
     private List<Song> songList;
+    private FloatingActionButton SearchBtn;
 
     // ActivityResultLauncher for requesting permissions
     private final ActivityResultLauncher<String> requestPermissionLauncher =
@@ -46,6 +48,15 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
         EdgeToEdge.enable(this);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // TODO: Add what happens to after clicking search button
+        SearchBtn = findViewById(R.id.searchBtn);
+        SearchBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "Search Button Clicked", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // --- FIX for the crash ---
         // A RecyclerView must have a LayoutManager to function.

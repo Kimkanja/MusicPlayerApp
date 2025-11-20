@@ -126,7 +126,7 @@ public class PlayerActivity extends AppCompatActivity {
         if (player != null) {
             player.setRepeatMode(isRepeat ? Player.REPEAT_MODE_ONE : Player.REPEAT_MODE_OFF);
         }
-        binding.repeatBtn.setColorFilter(isRepeat ? getResources().getColor(R.color.gray, getTheme()) : getResources().getColor(android.R.color.white, getTheme()));
+        binding.repeatBtn.setColorFilter(isRepeat ? getResources().getColor(R.color.orange, getTheme()) : getResources().getColor(android.R.color.white, getTheme()));
         Toast.makeText(this, isRepeat ? "Repeat ON" : "Repeat OFF", Toast.LENGTH_SHORT).show();
 
     }
@@ -136,7 +136,7 @@ public class PlayerActivity extends AppCompatActivity {
         if (isShuffle) {
             // Create a shuffled copy and don't change the current playing song
             Collections.shuffle(shuffledList);
-            binding.shuffleBtn.setColorFilter(getResources().getColor(R.color.gray, getTheme()));
+            binding.shuffleBtn.setColorFilter(getResources().getColor(R.color.orange, getTheme()));
         } else {
             // Restore the original order, finding the current song's new index
             Song currentSong = shuffledList.get(currentIndex);

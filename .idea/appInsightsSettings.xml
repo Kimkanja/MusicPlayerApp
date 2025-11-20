@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.kimani.musicplayerapp" />
+                  <option name="mobileSdkAppId" value="1:551316152636:android:711c6028fe2738b3393e39" />
+                  <option name="projectId" value="sb06srmn17018" />
+                  <option name="projectNumber" value="551316152636" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

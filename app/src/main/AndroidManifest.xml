@@ -17,6 +17,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MusicPlayerApp">
         <activity
+            android:name=".SeachActivity"
+            android:exported="false" />
+        <activity
             android:name=".OnlineActivity"
             android:exported="false" />
         <activity

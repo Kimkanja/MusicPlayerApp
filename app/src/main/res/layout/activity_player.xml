@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".PlayerActivity">
 
-    <!-- FIX: Background now correctly fills the entire screen on any device. -->
     <ImageView
         android:id="@+id/albumArtBg"
         android:layout_width="0dp"
@@ -19,7 +18,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- FIX: Top buttons are constrained to the top corners with consistent margins. -->
     <ImageView
         android:id="@+id/backBtn"
         android:layout_width="48dp"
@@ -46,9 +44,6 @@
         app:srcCompat="@drawable/icon_equilizer"
         app:tint="@color/white" />
 
-    <!-- FIX: Album art is centered and constrained below the top buttons. -->
-
-    <!-- FIX: Title is centered and constrained below the album art. -->
     <ImageView
         android:id="@+id/albumArtPlayerImage"
         android:layout_width="0dp"
@@ -87,7 +82,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/albumArtPlayerImage" />
 
-    <!-- FIX: Artist text is centered and constrained below the title. -->
     <TextView
         android:id="@+id/songArtistText"
         android:layout_width="0dp"
@@ -106,9 +100,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/songTitleText" />
 
-    <!-- FIX: Control buttons are constrained to the bottom of the screen. -->
-
-    <!-- FIX: WaveformSeekBar is correctly constrained above the bottom controls. -->
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="0dp"
@@ -182,7 +173,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:waveProgressColor="@color/white" />
 
-    <!-- FIX: Time text is correctly aligned with the start and end of the seekbar. -->
     <TextView
         android:id="@+id/elapsedTimeText"
         android:layout_width="wrap_content"

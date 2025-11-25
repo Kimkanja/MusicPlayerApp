@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
         SearchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, SearchActivity.class));
                 Toast.makeText(MainActivity.this, "Search Button Clicked", Toast.LENGTH_SHORT).show();
             }
         });

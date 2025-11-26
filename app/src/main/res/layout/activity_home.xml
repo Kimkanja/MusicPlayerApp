@@ -23,7 +23,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_centerVertical="true"
-                android:src="@mipmap/ic_launcher" />
+                android:src="@mipmap/icon_launcher" />
 
             <TextView
                 android:layout_width="match_parent"

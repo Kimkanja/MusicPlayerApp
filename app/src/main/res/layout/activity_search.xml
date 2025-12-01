@@ -11,8 +11,8 @@
         android:id="@+id/background_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        android:src="@drawable/song_background"
+        android:scaleType="center"
+        android:src="@drawable/bg8"
         tools:ignore="ContentDescription" />
 
     <View

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
+    android:background="@drawable/bg1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".HomeActivity">
@@ -29,16 +29,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
+                android:textColor="#E76238"
                 android:text="Welcome Back"
-                android:textSize="24sp"
+                android:textSize="26sp"
                 android:textStyle="bold" />
 
             <ImageView
+                android:id="@+id/settings_btn"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:src="@drawable/icon_saved_search_24" />
+                android:src="@drawable/icon_settings" />
 
 
         </RelativeLayout>
@@ -47,8 +49,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/toolbar"
-            android:layout_marginTop="16dp">
+            android:layout_marginTop="16dp"
+            android:scrollbars="none">
 
+            <!-- This is the single LinearLayout child that holds all content -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -59,118 +63,17 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
                     android:text="Category"
+                    android:textColor="@color/white"
                     android:textSize="20sp" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/category_recycler_view"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-                <!-- The content from the ConstraintLayout has been moved here -->
-
-                <!-- Top toolbar-like header -->
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:id="@+id/tv_artist_header"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="16dp"
-                        android:paddingTop="16dp"
-                        android:paddingBottom="8dp"
-                        android:text="Artist"
-                        android:textColor="#222222"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        app:layout_constraintEnd_toStartOf="@+id/btn_artist_see_all"
-                        app:layout_constraintHorizontal_bias="0"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <!-- Horizontal artists list -->
-                    <TextView
-                        android:id="@+id/btn_artist_see_all"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="16dp"
-                        android:paddingEnd="16dp"
-                        android:paddingBottom="8dp"
-                        android:text="See All"
-                        android:textColor="#E53935"
-                        android:textSize="14sp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/tv_artist_header" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rv_artists"
-                        android:layout_width="0dp"
-                        android:layout_height="110dp"
-                        android:layout_marginTop="4dp"
-                        android:clipToPadding="false"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/tv_artist_header" />
-
-                    <!-- Divider -->
-                    <View
-                        android:id="@+id/divider_1"
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:layout_marginTop="8dp"
-                        android:background="#E0E0E0"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/rv_artists" />
-
-                    <!-- Trending header -->
-                    <TextView
-                        android:id="@+id/tv_trending_header"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="16dp"
-                        android:paddingTop="12dp"
-                        android:paddingBottom="8dp"
-                        android:text="Trending Songs"
-                        android:textColor="#222222"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        app:layout_constraintEnd_toStartOf="@+id/btn_trending_see_all"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/divider_1" />
-
-                    <TextView
-                        android:id="@+id/btn_trending_see_all"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingEnd="16dp"
-                        android:text="See All"
-                        android:textColor="#E53935"
-                        android:textSize="14sp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/tv_trending_header" />
-
-                    <!-- Horizontal songs list -->
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rv_trending_songs"
-                        android:layout_width="0dp"
-                        android:layout_height="220dp"
-                        android:layout_marginTop="4dp"
-                        android:clipToPadding="false"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/tv_trending_header" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                    android:layout_height="wrap_content"/>
 
             </LinearLayout>
+
         </ScrollView>
-
-
 
     </RelativeLayout>
 

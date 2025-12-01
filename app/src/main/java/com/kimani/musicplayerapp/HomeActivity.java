@@ -8,16 +8,34 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.kimani.musicplayerapp.Adapter.CategoryAdapter;
+import com.kimani.musicplayerapp.databinding.ActivityHomeBinding;
+import com.kimani.musicplayerapp.databinding.ActivityMainBinding;
+import com.kimani.musicplayerapp.models.CategoryModel;
+
+import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
+
+    private ActivityHomeBinding binding;
+    private CategoryAdapter categoryAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_home);
+        binding = ActivityHomeBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+
+        getCategories();
+
+
 
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
@@ -47,4 +65,19 @@ public class HomeActivity extends AppCompatActivity {
         });
 
     }
+
+    void getCategories() {
+        FirebaseFirestore.getInstance().collection("category")
+                .get().addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<CategoryModel> categoryList = queryDocumentSnapshots.toObjects(CategoryModel.class);
+                    setupCategoryRecyclerView(categoryList);
+                });
+    }
+
+    void setupCategoryRecyclerView(List<CategoryModel> categoryList) {
+        categoryAdapter = new CategoryAdapter(categoryList);
+        binding.categoryRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        binding.categoryRecyclerView.setAdapter(categoryAdapter);
+    }
+
 }

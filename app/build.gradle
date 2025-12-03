@@ -38,24 +38,42 @@ android {
 
 dependencies {
 
+    // These are your standard dependencies from the libs.versions.toml file.
+    // They are correct.
     implementation libs.appcompat
-    implementation libs.material
+    implementation libs.material // This uses the version defined in your libs.versions.toml
     implementation libs.activity
     implementation libs.constraintlayout
     implementation libs.firebase.firestore
-    implementation libs.core.ktx
+    implementation libs.core.ktx // Note: This is a Kotlin dependency. If your project is mainly Java, this is fine, but just be aware.
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
 
-    implementation 'com.google.android.material:material:1.12.0'
+    // --- FIXES APPLIED BELOW ---
 
+    // 1. REMOVED: Duplicate Material dependency.
+    // You already have 'implementation libs.material' above. Having two different
+    // versions of the same library causes conflicts.
+    // implementation 'com.google.android.material:material:1.12.0'
+
+    // 2. REMOVED: Old ExoPlayer dependency.
+    // You are using the new androidx.media3 libraries, so you must remove the old
+    // com.google.android.exoplayer library to prevent class duplication errors.
+    // implementation 'com.google.android.exoplayer:exoplayer:2.19.1'
+
+    // These are your other app dependencies, which look correct.
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
-
-    implementation 'com.google.android.exoplayer:exoplayer:2.19.1'
     implementation 'com.github.bumptech.glide:glide:4.15.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.15.1'
     implementation 'androidx.palette:palette:1.0.0'
     implementation 'com.github.alexei-frolo:WaveformSeekBar:1.1'
     implementation 'jp.wasabeef:glide-transformations:4.3.0'
+
+    // These are the correct Media3 (the new ExoPlayer) dependencies.
+    // This block is correct and should be kept.
+    def media3_version = "1.3.1"
+    implementation "androidx.media3:media3-exoplayer:$media3_version"
+    implementation "androidx.media3:media3-ui:$media3_version"
+    implementation "androidx.media3:media3-session:$media3_version"
 }

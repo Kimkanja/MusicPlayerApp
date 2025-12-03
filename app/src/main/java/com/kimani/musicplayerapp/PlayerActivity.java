@@ -1,26 +1,29 @@
 package com.kimani.musicplayerapp;
 
-import android.content.ContentUris;import android.net.Uri;
+import android.content.ContentUris;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper; // Import Looper
+import android.os.Looper;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
+// Media3 Imports (THE FIX)
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.PlaybackException;
+import androidx.media3.common.Player;
+import androidx.media3.exoplayer.ExoPlayer;
+
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions; // Import RequestOptions
+import com.bumptech.glide.request.RequestOptions;
 import com.frolo.waveformseekbar.WaveformSeekBar;
-import com.google.android.exoplayer2.ExoPlayer; // Correct ExoPlayer import
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.PlaybackException;
-import com.google.android.exoplayer2.Player;
 import com.kimani.musicplayerapp.databinding.ActivityPlayerBinding;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections; // Import Collections
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -30,7 +33,7 @@ public class PlayerActivity extends AppCompatActivity {
     private ActivityPlayerBinding binding;
     private ExoPlayer player;
     private Handler handler;
-    private List<Song> songList = new ArrayList<>(); // Corrected variable name
+    private List<Song> songList = new ArrayList<>();
     private List<Song> shuffledList = new ArrayList<>();
     private int currentIndex = 0;
     private boolean isShuffle = false;
@@ -47,10 +50,8 @@ public class PlayerActivity extends AppCompatActivity {
                     float progressPercent = ((float) currentPosition / duration);
                     binding.waveformSeekBar.setProgressInPercentage(progressPercent);
                     binding.elapsedTimeText.setText(formatTime((int) (currentPosition / 1000)));
-                    // FIX 1: Corrected the cast syntax
                     binding.songDurationtext.setText(formatTime((int) (duration / 1000)));
                 }
-                // FIX 2: Corrected the misplaced code inside postDelayed
                 handler.postDelayed(this, 1000);
             }
         }
@@ -63,7 +64,6 @@ public class PlayerActivity extends AppCompatActivity {
         binding = ActivityPlayerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Initialize handler
         handler = new Handler(Looper.getMainLooper());
 
         songList = getIntent().getParcelableArrayListExtra("songList");
@@ -74,13 +74,11 @@ public class PlayerActivity extends AppCompatActivity {
             finish();
             return;
         }
-        // FIX 3: Corrected ArrayList initialization
         shuffledList = new ArrayList<>(songList);
-        binding.waveformSeekBar.setWaveform(createWaveform(), true); // Corrected method name
+        binding.waveformSeekBar.setWaveform(createWaveform(), true);
 
         initPlayerWithSong(currentIndex);
         setupControls();
-
     }
 
     private void setupControls() {
@@ -119,7 +117,8 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
     private void toggleBackBtn() {
-        getOnBackPressedDispatcher().onBackPressed();    }
+        getOnBackPressedDispatcher().onBackPressed();
+    }
 
     private void toggleRepeat() {
         isRepeat = !isRepeat;
@@ -128,17 +127,14 @@ public class PlayerActivity extends AppCompatActivity {
         }
         binding.repeatBtn.setColorFilter(isRepeat ? getResources().getColor(R.color.orange, getTheme()) : getResources().getColor(android.R.color.white, getTheme()));
         Toast.makeText(this, isRepeat ? "Repeat ON" : "Repeat OFF", Toast.LENGTH_SHORT).show();
-
     }
 
     private void toggleShuffle() {
         isShuffle = !isShuffle;
         if (isShuffle) {
-            // Create a shuffled copy and don't change the current playing song
             Collections.shuffle(shuffledList);
             binding.shuffleBtn.setColorFilter(getResources().getColor(R.color.orange, getTheme()));
         } else {
-            // Restore the original order, finding the current song's new index
             Song currentSong = shuffledList.get(currentIndex);
             shuffledList = new ArrayList<>(songList);
             currentIndex = shuffledList.indexOf(currentSong);
@@ -169,7 +165,6 @@ public class PlayerActivity extends AppCompatActivity {
     private void initPlayerWithSong(int index) {
         if (songList.isEmpty()) return;
 
-        // Use the correct list based on shuffle mode
         Song song = isShuffle ? shuffledList.get(index) : songList.get(index);
 
         if (player != null) player.release();
@@ -194,7 +189,8 @@ public class PlayerActivity extends AppCompatActivity {
             }
         });
 
-        player.setMediaItem(MediaItem.fromUri(song.getData())); // Use getter
+        // The 'getData()' method from your Song class must return a Uri
+        player.setMediaItem(MediaItem.fromUri(song.getData()));
         player.prepare();
         player.play();
 
@@ -204,10 +200,10 @@ public class PlayerActivity extends AppCompatActivity {
 
     private void updateUI(Song song) {
         binding.songTitleText.setText(song.getTitle());
-        binding.songTitleText.setSelected(true); // Enables marquee for title
+        binding.songTitleText.setSelected(true);
 
         binding.songArtistText.setText(song.getArtist());
-        binding.songArtistText.setSelected(true); // FIX 1: Enables marquee for artist
+        binding.songArtistText.setSelected(true);
 
         setTitle(song.getTitle());
 
@@ -215,7 +211,6 @@ public class PlayerActivity extends AppCompatActivity {
                 Uri.parse("content://media/external/audio/albumart"), song.getAlbumId());
 
         if (hasAlbumArt(albumArtUri)) {
-            // Song has album art, so load it into the circle and blurred background
             Glide.with(this)
                     .asBitmap()
                     .load(albumArtUri)
@@ -228,13 +223,11 @@ public class PlayerActivity extends AppCompatActivity {
                     .asBitmap()
                     .load(albumArtUri)
                     .apply(RequestOptions.bitmapTransform(new BlurTransformation(25, 3)))
-                    .placeholder(R.drawable.gradient_bg) // Use gradient as placeholder
-                    .error(R.drawable.gradient_bg)       // Use gradient on error
+                    .placeholder(R.drawable.gradient_bg)
+                    .error(R.drawable.gradient_bg)
                     .into(binding.albumArtBg);
         } else {
-            // Song does NOT have album art
             binding.albumArtPlayerImage.setImageResource(R.drawable.ic_music_note_24);
-            // FIX 2: Set the background to the gradient drawable instead of an icon
             binding.albumArtBg.setImageResource(R.drawable.gradient_bg);
         }
     }
@@ -252,7 +245,7 @@ public class PlayerActivity extends AppCompatActivity {
         return String.format("%02d:%02d", seconds / 60, seconds % 60);
     }
 
-    private int[] createWaveform() { // Renamed method for clarity
+    private int[] createWaveform() {
         Random random = new Random(System.currentTimeMillis());
         int[] values = new int[50];
         for (int i = 0; i < values.length; i++) {
@@ -263,7 +256,6 @@ public class PlayerActivity extends AppCompatActivity {
 
     private void updatePlayPauseButtonIcon() {
         if (player == null) return;
-        // FIX 6: Corrected ternary operator syntax
         binding.playpauseBtn.setImageResource(
                 player.isPlaying() ? R.drawable.icon_pause_24 : R.drawable.icon_play_24
         );

@@ -16,7 +16,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:textSize="18sp"
+        android:gravity="center"
+        android:textSize="14sp"
         android:id="@+id/name_textView"/>
 
 </LinearLayout>

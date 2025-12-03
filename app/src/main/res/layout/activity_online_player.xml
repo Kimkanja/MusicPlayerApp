@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="You're Online Listening to : "
-        android:textColor="@color/white"
+        android:textColor="#FF6A00"
         android:textStyle="bold"
         android:textSize="24sp"
         android:layout_marginTop="100dp"
@@ -56,7 +56,8 @@
         android:layout_height="wrap_content"
         android:textSize="20sp"
         tools:text="Album"
-        android:textColor="@color/white"
+        android:textStyle="italic"
+        android:textColor="#005F73"
         android:layout_marginTop="8dp"
         android:id="@+id/song_subtitle_text_view"/>
 

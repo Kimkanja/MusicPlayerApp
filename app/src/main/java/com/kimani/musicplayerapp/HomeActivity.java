@@ -87,7 +87,7 @@ public class HomeActivity extends AppCompatActivity {
     //show current playing song
     public void showPlayerView() {
         binding.playerView.setOnClickListener(v -> {
-            startActivity(new Intent(this, PlayerActivity.class));
+            startActivity(new Intent(this, OnlinePlayerActivity.class));
         });
 
         SongModel currentSong = MyExoplayer.getCurrentSong();
@@ -99,6 +99,10 @@ public class HomeActivity extends AppCompatActivity {
                     // 2. Use the correct RequestOptions class from Glide
                     .apply(new RequestOptions().transform(new RoundedCorners(32)))
                     .into(binding.songCoverImageView);
+            Glide.with(binding.songGifImageView)
+                    .load(R.drawable.media_playing)
+                    .circleCrop()
+                    .into(binding.songGifImageView);
         } else {
             binding.playerView.setVisibility(View.GONE);
         }

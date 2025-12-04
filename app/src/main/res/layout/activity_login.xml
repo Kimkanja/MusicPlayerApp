@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/grey"
+    android:background="@drawable/bg4"
     android:orientation="vertical"
     android:padding="16dp"
     android:gravity="center"
@@ -26,7 +26,7 @@
             android:fontFamily="monospace"
             android:gravity="center"
             android:paddingTop="8dp"
-            android:text="Explore latest hits only on Music Stream"
+            android:text="Your music world starts here on Music Stream"
             android:textColor="@color/white"
             android:textSize="22sp"
             android:textStyle="bold" />

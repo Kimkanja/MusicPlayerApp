@@ -41,7 +41,7 @@
                 android:textStyle="bold" />
 
             <ImageView
-                android:id="@+id/settings_btn"
+                android:id="@+id/logout_btn"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_alignParentEnd="true"
@@ -80,7 +80,7 @@
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="15dp" />
+                    android:layout_height="10dp" />
 
                 <RelativeLayout
                     android:id="@+id/section_1_main_layout"
@@ -113,7 +113,7 @@
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="15dp" />
+                    android:layout_height="10dp" />
 
                 <RelativeLayout
                     android:id="@+id/mostly_played_main_layout"
@@ -145,7 +145,7 @@
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="15dp" />
+                    android:layout_height="10dp" />
 
                 <RelativeLayout
                     android:id="@+id/section_2_main_layout"
@@ -177,7 +177,7 @@
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="15dp" />
+                    android:layout_height="10dp" />
 
                 <RelativeLayout
                     android:id="@+id/section_3_main_layout"

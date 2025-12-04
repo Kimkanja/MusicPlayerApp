@@ -45,7 +45,10 @@ dependencies {
     implementation libs.activity
     implementation libs.constraintlayout
     implementation libs.firebase.firestore
-    implementation libs.core.ktx // Note: This is a Kotlin dependency. If your project is mainly Java, this is fine, but just be aware.
+    implementation libs.core.ktx
+    implementation libs.contentpager
+    implementation libs.firebase.auth
+// Note: This is a Kotlin dependency. If your project is mainly Java, this is fine, but just be aware.
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core

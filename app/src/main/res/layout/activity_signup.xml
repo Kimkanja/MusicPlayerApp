@@ -48,7 +48,7 @@
             android:textColorHint="@color/black"
             android:padding="16dp"
             android:inputType="textEmailAddress"
-            android:background="@drawable/rounded_corner"
+            android:background="@drawable/rounded_corner_login"
             android:id="@+id/email_edittext"/>
 
         <View
@@ -62,7 +62,7 @@
             android:textColorHint="@color/black"
             android:padding="16dp"
             android:inputType="textPassword"
-            android:background="@drawable/rounded_corner"
+            android:background="@drawable/rounded_corner_login"
             android:id="@+id/password_edittext"/>
         <View
             android:layout_width="match_parent"
@@ -75,7 +75,7 @@
             android:textColorHint="@color/black"
             android:padding="16dp"
             android:inputType="textPassword"
-            android:background="@drawable/rounded_corner"
+            android:background="@drawable/rounded_corner_login"
             android:id="@+id/confirm_password_edittext"/>
 
         <View

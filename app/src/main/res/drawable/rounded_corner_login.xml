@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- Background color -->
+    <solid android:color="#D3D3D3"/> <!-- Light gray fill -->
+
+    <!-- Rounded corners -->
+    <corners android:radius="16dp"/> <!-- Adjust radius as needed -->
+
+    <!-- Orange ring / border -->
+    <stroke
+        android:width="4dp"
+        android:color="@color/blue"/> <!-- Orange color -->
+</shape>

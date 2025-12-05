@@ -2,8 +2,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
     android:id="@+id/main"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".SongsListActivity">
 
@@ -26,30 +26,30 @@
 
         <ImageView
             android:id="@+id/cover_image_view"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:layout_marginTop="50dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:scaleType="fitXY"
+            android:layout_marginTop="10dp"
             android:elevation="16dp"
-            android:translationZ="16dp"/>
+            android:translationZ="16dp" />
 
         <TextView
             android:id="@+id/name_textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:text="Music"
+            android:layout_margin="2dp"
             android:textColor="@color/white"
             android:textStyle="bold"
-            android:textSize="24sp"
-            android:gravity="center"
-            android:layout_margin="10dp" />
+            android:textSize="22sp"
+            android:gravity="center" />
 
         <com.google.android.material.divider.MaterialDivider
             android:layout_width="match_parent"
             android:layout_height="2dp"
             app:dividerColor="@color/white"
             android:layout_marginHorizontal="18dp"
-            android:layout_marginVertical="8dp" />
+            android:layout_marginVertical="4dp" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/songs_list_recycler_view"

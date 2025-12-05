@@ -10,12 +10,15 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:scaleType="fitXY"
+        android:elevation="10dp"
         android:id="@+id/cover_image_view"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
+        android:textStyle="bold"
+        android:textColor="#005F73"
         android:gravity="center"
         android:textSize="14sp"
         android:id="@+id/name_textView"/>

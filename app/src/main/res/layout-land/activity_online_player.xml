@@ -13,20 +13,21 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="You're Currently Online Listening to : "
+        android:text="You're Online Listening to : "
         android:textColor="@color/white"
         android:textStyle="bold"
+        android:textSize="28sp"
         android:fontFamily="serif-monospace"
-        android:textSize="24sp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="10dp"
         android:gravity="center_horizontal"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="10dp"
         />
 
 
     <FrameLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:visibility="gone">
         <ImageView
             android:layout_width="140dp"
             android:layout_height="140dp"
@@ -49,7 +50,7 @@
         android:textSize="22sp"
         tools:text="Song name"
         android:textColor="@color/white"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="2dp"
         android:textStyle="bold"
         android:id="@+id/song_title_text_view"/>
     <TextView

@@ -3,6 +3,8 @@ package com.kimani.musicplayerapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.view.View;
@@ -41,7 +43,6 @@ public class HomeActivity extends AppCompatActivity {
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Check for internet connection before loading data
         if (NetworkUtils.isNetworkAvailable(this)) {
             loadDataFromFirebase();
         } else {
@@ -53,11 +54,23 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void loadDataFromFirebase() {
+        setLoading(true);
         getCategories();
         setupSection("section_1", binding.section1MainLayout, binding.section1Title, binding.section1RecyclerView);
         setupSection("section_2", binding.section2MainLayout, binding.section2Title, binding.section2RecyclerView);
         setupSection("section_3", binding.section3MainLayout, binding.section3Title, binding.section3RecyclerView);
         setupMostlyPlayed("mostly_played", binding.mostlyPlayedMainLayout, binding.mostlyPlayedTitle, binding.mostlyPlayedRecyclerView);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> setLoading(false), 1500);
+    }
+
+    private void setLoading(boolean isLoading) {
+        if (isLoading) {
+            binding.loadingIndicator.setVisibility(View.VISIBLE);
+            binding.contentLayout.setVisibility(View.GONE);
+        } else {
+            binding.loadingIndicator.setVisibility(View.GONE);
+            binding.contentLayout.setVisibility(View.VISIBLE);
+        }
     }
 
     private void showNoInternetDialog() {
@@ -65,11 +78,10 @@ public class HomeActivity extends AppCompatActivity {
                 .setTitle("No Internet Connection")
                 .setMessage("You need an internet connection to access online content. Please connect and try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
-                    // Check again when Retry is clicked
                     if (NetworkUtils.isNetworkAvailable(HomeActivity.this)) {
-                        loadDataFromFirebase(); // If connected, load the data
+                        loadDataFromFirebase();
                     } else {
-                        showNoInternetDialog(); // Otherwise, show the dialog again
+                        showNoInternetDialog();
                     }
                 })
                 .setNegativeButton("Offline Mode", (dialog, which) -> {
@@ -87,10 +99,14 @@ public class HomeActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             switch (item.getItemId()) {
                 case R.id.bottom_home:
+                    if (NetworkUtils.isNetworkAvailable(this)) {
+                        loadDataFromFirebase();
+                    } else {
+                        showNoInternetDialog();
+                    }
                     return true;
 
                 case R.id.bottom_playlist:
-                    // Stop the currently playing online song
                     if (MyExoplayer.getInstance() != null) {
                         MyExoplayer.getInstance().stop();
                     }
@@ -129,9 +145,13 @@ public class HomeActivity extends AppCompatActivity {
         showPlayerView();
     }
 
+    // THIS METHOD IS UPDATED
     public void showPlayerView() {
         binding.playerView.setOnClickListener(v -> {
+            // Start the OnlinePlayerActivity
             startActivity(new Intent(this, OnlinePlayerActivity.class));
+            // Apply the custom slide-up animation
+            overridePendingTransition(R.anim.slide_up, R.anim.fade_out);
         });
 
         SongModel currentSong = MyExoplayer.getCurrentSong();

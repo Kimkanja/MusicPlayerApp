@@ -1,0 +1,66 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp"
+    android:background="@drawable/glow_background"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
+
+    <!-- Title for the Bottom Sheet -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Choose your action"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/blue"
+        android:gravity="center"
+        android:paddingBottom="12dp"/>
+
+    <!-- Divider Line -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/blue"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:id="@+id/btnDelete"
+        android:text="Delete"
+        android:textColor="@color/blue"
+        android:padding="15dp"
+        android:gravity="center_vertical"
+        android:drawablePadding="16dp"
+        android:drawableStart="@drawable/icon_delete"
+        android:textSize="18sp" />
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:id="@+id/btnRename"
+        android:text="Rename"
+        android:textColor="@color/blue"
+        android:padding="15dp"
+        android:gravity="center_vertical"
+        android:drawablePadding="16dp"
+        android:drawableStart="@drawable/icon_edit"
+        android:textSize="18sp" />
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:id="@+id/btnFavorite"
+        android:textColor="@color/blue"
+        android:text="Add to favourite"
+        android:padding="15dp"
+        android:gravity="center_vertical"
+        android:drawablePadding="16dp"
+        android:drawableStart="@drawable/icon_favourite"
+        android:textSize="18sp" />
+
+</LinearLayout>

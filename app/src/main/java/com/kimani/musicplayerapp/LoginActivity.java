@@ -9,6 +9,7 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.material.textfield.TextInputEditText; // Import the correct class
 import com.google.firebase.auth.FirebaseAuth;
 
 import com.kimani.musicplayerapp.databinding.ActivityLoginBinding;
@@ -33,16 +34,21 @@ public class LoginActivity extends AppCompatActivity {
                 return; // Stop the process
             }
 
-            String email = binding.emailEdittext.getText().toString();
-            String password = binding.passwordEdittext.getText().toString();
+            // --- FIX ---
+            // Cast the views to TextInputEditText to access the getText() method.
+            TextInputEditText emailEditText = (TextInputEditText) binding.emailEdittext;
+            TextInputEditText passwordEditText = (TextInputEditText) binding.passwordEdittext;
+
+            String email = emailEditText.getText().toString();
+            String password = passwordEditText.getText().toString();
 
             if (!Pattern.matches(Patterns.EMAIL_ADDRESS.pattern(), email)) {
-                binding.emailEdittext.setError("Invalid email");
+                emailEditText.setError("Invalid email");
                 return;
             }
 
             if (password.length() < 6) {
-                binding.passwordEdittext.setError("Length should be 6 characters");
+                passwordEditText.setError("Length should be 6 characters");
                 return;
             }
 

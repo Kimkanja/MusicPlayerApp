@@ -1,132 +1,169 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Replace this file: res/layout/activity_signup.xml -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg4"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:gravity="center"
     tools:context=".SignupActivity">
+
+    <!-- Background Image -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/bg4"
+        android:scaleType="centerCrop" />
+
+    <!-- Dark Overlay -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:visibility="gone"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:gravity="center">
 
-        <ImageView
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:src="@mipmap/icon_launcher" />
+        <!-- Logo & Title -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:visibility="gone"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:src="@mipmap/icon_launcher" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:gravity="center"
+                android:paddingTop="8dp"
+                android:text="Create Your Account"
+                android:textColor="@color/white"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="monospace"
             android:gravity="center"
-            android:paddingTop="8dp"
-            android:text="Your music world starts here on Music Stream"
+            android:paddingTop="1dp"
+            android:text="Create Your Account"
             android:textColor="@color/white"
             android:textSize="22sp"
             android:textStyle="bold" />
 
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:gravity="center"
-        android:orientation="vertical">
-
-        <EditText
+        <!-- Input Fields -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email address"
-            android:textColorHint="@color/black"
-            android:padding="16dp"
-            android:inputType="textEmailAddress"
-            android:background="@drawable/rounded_corner_login"
-            android:id="@+id/email_edittext"/>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="10dp"/>
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Password"
-            android:textColorHint="@color/black"
-            android:padding="16dp"
-            android:inputType="textPassword"
-            android:background="@drawable/rounded_corner_login"
-            android:id="@+id/password_edittext"/>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="8dp"/>
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Confirm Password"
-            android:textColorHint="@color/black"
-            android:padding="16dp"
-            android:inputType="textPassword"
-            android:background="@drawable/rounded_corner_login"
-            android:id="@+id/confirm_password_edittext"/>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="8dp"/>
-
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="60dp"
-            android:text="Create Account"
-            android:id="@+id/create_account_btn"/>
-
-        <ProgressBar
-            android:layout_width="32dp"
-            android:layout_height="60dp"
-            android:id="@+id/progress_bar"
-            android:visibility="gone"
-            android:indeterminateTint="@color/white"/>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="10dp"/>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Already have an account?"
-            android:textColor="@color/white"
             android:gravity="center"
-            android:id="@+id/goto_login_btn"/>
+            android:orientation="vertical">
+
+            <!-- Email Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Email address"
+                app:startIconDrawable="@drawable/icon_email">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/email_edittext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textEmailAddress"
+                    android:maxLines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp" />
+
+            <!-- Password Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Password"
+                app:startIconDrawable="@drawable/icon_lock">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/password_edittext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword"
+                    android:maxLines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp" />
+
+            <!-- Confirm Password Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Confirm Password"
+                app:startIconDrawable="@drawable/icon_lock">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/confirm_password_edittext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword"
+                    android:maxLines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="10dp" />
+
+            <!-- Create Account Button -->
+            <Button
+                android:id="@+id/create_account_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="60dp"
+                android:text="Create Account" />
+
+            <!-- Loading Bar -->
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="32dp"
+                android:layout_height="60dp"
+                android:visibility="gone"
+                android:indeterminateTint="@color/white" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="10dp" />
+
+            <!-- Go to Login -->
+            <TextView
+                android:id="@+id/goto_login_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Already have an account? Login"
+                android:textColor="@color/white"
+                android:gravity="center" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-
-</LinearLayout>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+</FrameLayout>

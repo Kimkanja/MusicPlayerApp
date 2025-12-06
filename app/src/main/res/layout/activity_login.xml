@@ -1,5 +1,6 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".LoginActivity">
@@ -22,8 +23,7 @@
         android:padding="16dp"
         android:gravity="center">
 
-
-
+        <!-- Logo & Title -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -41,14 +41,14 @@
                 android:fontFamily="monospace"
                 android:gravity="center"
                 android:paddingTop="8dp"
-                android:text="Your music world starts here on Music Stream"
+                android:text="Your music world starts here on MusicPlayerApp"
                 android:textColor="@color/white"
                 android:textSize="22sp"
                 android:textStyle="bold" />
 
-
         </LinearLayout>
 
+        <!-- Input Fields -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -56,60 +56,79 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <EditText
+            <!-- Email Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/login_email_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Email address"
-                android:textColorHint="@color/black"
-                android:padding="16dp"
-                android:inputType="textEmailAddress"
-                android:background="@drawable/rounded_corner_login"
-                android:id="@+id/email_edittext"/>
+                app:startIconDrawable="@drawable/icon_email">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/email_edittext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textEmailAddress"
+                    android:maxLines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="20dp"/>
+                android:layout_height="20dp" />
 
-            <EditText
+            <!-- Password Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/login_password_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Password"
-                android:textColorHint="@color/black"
-                android:padding="16dp"
-                android:inputType="textPassword"
-                android:background="@drawable/rounded_corner_login"
-                android:id="@+id/password_edittext"/>
+                app:startIconDrawable="@drawable/icon_lock">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/password_edittext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword"
+                    android:maxLines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
             <View
                 android:layout_width="match_parent"
-                android:layout_height="20dp"/>
+                android:layout_height="20dp" />
 
-
+            <!-- Login Button -->
             <Button
+                android:id="@+id/login_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="60dp"
-                android:text="Login"
-                android:id="@+id/login_btn"/>
+                android:text="Login" />
 
+            <!-- Loading Bar -->
             <ProgressBar
+                android:id="@+id/progress_bar"
                 android:layout_width="32dp"
                 android:layout_height="60dp"
-                android:id="@+id/progress_bar"
                 android:visibility="gone"
-                android:indeterminateTint="@color/white"/>
+                android:indeterminateTint="@color/white" />
+
             <View
                 android:layout_width="match_parent"
-                android:layout_height="20dp"/>
+                android:layout_height="20dp" />
+
+            <!-- Go to Sign Up -->
             <TextView
+                android:id="@+id/goto_signup_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Don't have an account?"
                 android:textColor="@color/white"
-                android:gravity="center"
-                android:id="@+id/goto_signup_btn"/>
-
+                android:gravity="center" />
 
         </LinearLayout>
-
 
     </LinearLayout>
 

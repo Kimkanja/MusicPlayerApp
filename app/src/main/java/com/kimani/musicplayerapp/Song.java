@@ -1,19 +1,18 @@
+// Replace this file: app/src/main/java/com/kimani/musicplayerapp/Song.java
 package com.kimani.musicplayerapp;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
 import androidx.annotation.NonNull;
 
 public class Song implements Parcelable {
-    // Fields should be private to follow good practice (encapsulation)
-    private final long id;
-    public final String title;
-    public final String artist;
-    private final String data; // Corrected from 'date' to 'data' to hold the file path
-    public final long albumId;
 
-    // Constructor to initialize a Song object
+    private final long id;
+    private String title;
+    private String artist; // <-- This will now be modifiable
+    private final String data;
+    private final long albumId;
+
     public Song(long id, String title, String artist, String data, long albumId) {
         this.id = id;
         this.title = title;
@@ -22,36 +21,29 @@ public class Song implements Parcelable {
         this.albumId = albumId;
     }
 
-    // --- GETTER METHODS (This is the main fix) ---
-    // These methods allow other classes to safely access the private fields.
-    public long getId() {
-        return id;
+    // --- GETTER METHODS ---
+    public long getId() { return id; }
+    public String getTitle() { return title; }
+    public String getArtist() { return artist; }
+    public String getData() { return data; }
+    public long getAlbumId() { return albumId; }
+
+    // --- SETTER METHODS ---
+    public void setTitle(String newTitle) {
+        this.title = newTitle;
     }
 
-    public String getTitle() {
-        return title;
+    // New setter for the artist
+    public void setArtist(String newArtist) {
+        this.artist = newArtist;
     }
 
-    public String getArtist() {
-        return artist;
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public long getAlbumId() {
-        return albumId;
-    }
-
-
-    // --- Parcelable Implementation (for passing Song objects between activities) ---
-
+    // --- Parcelable Implementation ---
     protected Song(Parcel in) {
         id = in.readLong();
         title = in.readString();
         artist = in.readString();
-        data = in.readString(); // Read 'data' from the parcel
+        data = in.readString();
         albumId = in.readLong();
     }
 
@@ -60,7 +52,7 @@ public class Song implements Parcelable {
         dest.writeLong(id);
         dest.writeString(title);
         dest.writeString(artist);
-        dest.writeString(data); // Write 'data' to the parcel
+        dest.writeString(data);
         dest.writeLong(albumId);
     }
 

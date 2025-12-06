@@ -1,0 +1,47 @@
+<!-- Replace this file: res/layout/dialog_rename_song.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/glow_effect_item"
+    android:padding="24dp">
+
+    <!-- Title Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/title_input_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Song Title"
+        app:startIconDrawable="@drawable/ic_music_note_24">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/input_song_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapWords"
+            android:maxLines="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Artist Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/artist_input_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Artist Name"
+        app:startIconDrawable="@drawable/icon_artist">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/input_song_artist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapWords"
+            android:maxLines="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+</LinearLayout>

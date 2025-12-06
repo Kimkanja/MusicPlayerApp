@@ -48,10 +48,18 @@
         android:layout_height="wrap_content"
         android:textSize="22sp"
         tools:text="Song name"
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:scrollHorizontally="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:textAlignment="center"
         android:textColor="@color/white"
         android:layout_marginTop="16dp"
         android:textStyle="bold"
         android:id="@+id/song_title_text_view"/>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

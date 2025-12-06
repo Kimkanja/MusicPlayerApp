@@ -189,7 +189,6 @@ public class PlayerActivity extends AppCompatActivity {
             }
         });
 
-        // The 'getData()' method from your Song class must return a Uri
         player.setMediaItem(MediaItem.fromUri(song.getData()));
         player.prepare();
         player.play();

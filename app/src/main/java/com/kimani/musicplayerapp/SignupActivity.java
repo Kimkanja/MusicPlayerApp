@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Toast;
+
+import com.google.android.material.textfield.TextInputEditText; // Import the correct class
 import com.google.firebase.auth.FirebaseAuth;
 import com.kimani.musicplayerapp.databinding.ActivitySignupBinding;
 import java.util.regex.Pattern;
@@ -28,22 +30,28 @@ public class SignupActivity extends AppCompatActivity {
                 return; // Stop the process if no internet
             }
 
-            String email = binding.emailEdittext.getText().toString();
-            String password = binding.passwordEdittext.getText().toString();
-            String confirmPassword = binding.confirmPasswordEdittext.getText().toString();
+            // --- FIX ---
+            // Cast the views from View to TextInputEditText to access getText()
+            TextInputEditText emailEditText = (TextInputEditText) binding.emailEdittext;
+            TextInputEditText passwordEditText = (TextInputEditText) binding.passwordEdittext;
+            TextInputEditText confirmPasswordEditText = (TextInputEditText) binding.confirmPasswordEdittext;
+
+            String email = emailEditText.getText().toString();
+            String password = passwordEditText.getText().toString();
+            String confirmPassword = confirmPasswordEditText.getText().toString();
 
             if (!Pattern.matches(Patterns.EMAIL_ADDRESS.pattern(), email)) {
-                binding.emailEdittext.setError("Invalid email");
+                emailEditText.setError("Invalid email");
                 return;
             }
 
             if (password.length() < 6) {
-                binding.passwordEdittext.setError("Length should be 6 char");
+                passwordEditText.setError("Length should be 6 char");
                 return;
             }
 
             if (!password.equals(confirmPassword)) {
-                binding.confirmPasswordEdittext.setError("Password not matched");
+                confirmPasswordEditText.setError("Password not matched");
                 return;
             }
 

@@ -1,7 +1,9 @@
+// Replace this file: app/src/main/java/com/kimani/musicplayerapp/PlayerActivity.java
 package com.kimani.musicplayerapp;
 
+import android.content.ComponentName;
 import android.content.ContentUris;
-import android.net.Uri;
+import android.content.Intent;import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -9,16 +11,15 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-
-// Media3 Imports (THE FIX)
 import androidx.media3.common.MediaItem;
-import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
-import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.session.MediaController;
+import androidx.media3.session.SessionToken;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.frolo.waveformseekbar.WaveformSeekBar;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.kimani.musicplayerapp.databinding.ActivityPlayerBinding;
 
 import java.io.InputStream;
@@ -30,12 +31,13 @@ import java.util.Random;
 import jp.wasabeef.glide.transformations.BlurTransformation;
 
 public class PlayerActivity extends AppCompatActivity {
+
     private ActivityPlayerBinding binding;
-    private ExoPlayer player;
+    // FIX 1: The MediaController variable should be a ListenableFuture
+    private ListenableFuture<MediaController> mediaControllerFuture;
     private Handler handler;
     private List<Song> songList = new ArrayList<>();
     private List<Song> shuffledList = new ArrayList<>();
-    private int currentIndex = 0;
     private boolean isShuffle = false;
     private boolean isRepeat = false;
 
@@ -43,16 +45,24 @@ public class PlayerActivity extends AppCompatActivity {
     private final Runnable updateRunnable = new Runnable() {
         @Override
         public void run() {
-            if(player != null && player.isPlaying()){
-                long currentPosition = player.getCurrentPosition();
-                long duration = player.getDuration();
-                if (duration > 0) {
-                    float progressPercent = ((float) currentPosition / duration);
-                    binding.waveformSeekBar.setProgressInPercentage(progressPercent);
-                    binding.elapsedTimeText.setText(formatTime((int) (currentPosition / 1000)));
-                    binding.songDurationtext.setText(formatTime((int) (duration / 1000)));
+            // Check if the future is done and successful before using the controller
+            if (mediaControllerFuture != null && mediaControllerFuture.isDone()) {
+                try {
+                    MediaController mediaController = mediaControllerFuture.get();
+                    if (mediaController != null && mediaController.isPlaying()) {
+                        long currentPosition = mediaController.getCurrentPosition();
+                        long duration = mediaController.getDuration();
+                        if (duration > 0) {
+                            float progressPercent = ((float) currentPosition / duration);
+                            binding.waveformSeekBar.setProgressInPercentage(progressPercent);
+                            binding.elapsedTimeText.setText(formatTime((int) (currentPosition / 1000)));
+                            binding.songDurationtext.setText(formatTime((int) (duration / 1000)));
+                        }
+                        handler.postDelayed(this, 1000);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                handler.postDelayed(this, 1000);
             }
         }
     };
@@ -67,170 +77,150 @@ public class PlayerActivity extends AppCompatActivity {
         handler = new Handler(Looper.getMainLooper());
 
         songList = getIntent().getParcelableArrayListExtra("songList");
-        currentIndex = getIntent().getIntExtra("position", 0);
+        int initialPosition = getIntent().getIntExtra("position", 0);
 
-        if(songList == null || songList.isEmpty()){
+        if (songList == null || songList.isEmpty()) {
             Toast.makeText(this, "No Songs Found!", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
+
         shuffledList = new ArrayList<>(songList);
         binding.waveformSeekBar.setWaveform(createWaveform(), true);
 
-        initPlayerWithSong(currentIndex);
+        // Start the service and send the playlist data
+        Intent serviceIntent = new Intent(this, PlaybackService.class);
+        serviceIntent.setAction("ACTION_START");
+        serviceIntent.putParcelableArrayListExtra("songList", new ArrayList<>(songList));
+        serviceIntent.putExtra("position", initialPosition);
+        startService(serviceIntent);
+
         setupControls();
     }
 
-    private void setupControls() {
-        binding.playpauseBtn.setOnClickListener(v -> togglePlayPause());
-        binding.nextBtn.setOnClickListener(v -> playNext());
-        binding.previousBtn.setOnClickListener(v -> playPrevious());
-        binding.shuffleBtn.setOnClickListener(v -> toggleShuffle());
-        binding.repeatBtn.setOnClickListener(v -> toggleRepeat());
-        binding.backBtn.setOnClickListener(v -> toggleBackBtn());
-        binding.waveformSeekBar.setCallback(new WaveformSeekBar.Callback() {
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // FIX 2: Correctly initialize the future and add a listener
+        SessionToken sessionToken = new SessionToken(this, new ComponentName(this, PlaybackService.class));
+        mediaControllerFuture = new MediaController.Builder(this, sessionToken).buildAsync();
 
-            @Override
-            public void onProgressChanged(WaveformSeekBar seekBar, float percent, boolean fromUser) {
-                if (fromUser && player != null) {
-                    long duration = player.getDuration();
-                    long seekPos = (long) (percent * duration);
-                    player.seekTo(seekPos);
-                    binding.elapsedTimeText.setText(formatTime((int) (seekPos / 1000)));
-                }
+        // Add a listener to handle the connection success
+        mediaControllerFuture.addListener(() -> {
+            try {
+                MediaController mediaController = mediaControllerFuture.get();
+                mediaController.addListener(playerListener);
+                updateUIForCurrentSong();
+                handler.post(updateRunnable);
+            } catch (Exception e) {
+                // Handle connection failure
+                e.printStackTrace();
             }
-
-            @Override
-            public void onStartTrackingTouch(WaveformSeekBar seekBar) {
-                if (handler != null) {
-                    handler.removeCallbacks(updateRunnable);
-                }
-            }
-
-            @Override
-            public void onStopTrackingTouch(WaveformSeekBar seekBar) {
-                if (handler != null) {
-                    handler.postDelayed(updateRunnable, 0);
-                }
-            }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
-    private void toggleBackBtn() {
-        getOnBackPressedDispatcher().onBackPressed();
+    private final Player.Listener playerListener = new Player.Listener() {
+        @Override
+        public void onMediaItemTransition(@androidx.annotation.Nullable MediaItem mediaItem, int reason) {
+            updateUIForCurrentSong();
+            handler.post(updateRunnable);
+        }
+
+        @Override
+        public void onIsPlayingChanged(boolean isPlaying) {
+            updatePlayPauseButtonIcon();
+            if(isPlaying){
+                handler.post(updateRunnable);
+            } else {
+                handler.removeCallbacks(updateRunnable);
+            }
+        }
+    };
+
+    private void setupControls() {
+        binding.playpauseBtn.setOnClickListener(v -> {
+            // FIX 3: Get the controller from the future to use it
+            if (mediaControllerFuture == null || !mediaControllerFuture.isDone()) return;
+            try {
+                MediaController controller = mediaControllerFuture.get();
+                if (controller.isPlaying()) {
+                    controller.pause();
+                } else {
+                    controller.play();
+                }
+            } catch (Exception e) { e.printStackTrace(); }
+        });
+
+        binding.nextBtn.setOnClickListener(v -> {
+            if (mediaControllerFuture != null && mediaControllerFuture.isDone()) {
+                try { mediaControllerFuture.get().seekToNextMediaItem(); }
+                catch (Exception e) { e.printStackTrace(); }
+            }
+        });
+
+        binding.previousBtn.setOnClickListener(v -> {
+            if (mediaControllerFuture != null && mediaControllerFuture.isDone()) {
+                try { mediaControllerFuture.get().seekToPreviousMediaItem(); }
+                catch (Exception e) { e.printStackTrace(); }
+            }
+        });
+
+
+        binding.shuffleBtn.setOnClickListener(v -> toggleShuffle());
+        binding.repeatBtn.setOnClickListener(v -> toggleRepeat());
+        binding.backBtn.setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
     }
 
     private void toggleRepeat() {
-        isRepeat = !isRepeat;
-        if (player != null) {
-            player.setRepeatMode(isRepeat ? Player.REPEAT_MODE_ONE : Player.REPEAT_MODE_OFF);
-        }
-        binding.repeatBtn.setColorFilter(isRepeat ? getResources().getColor(R.color.orange, getTheme()) : getResources().getColor(android.R.color.white, getTheme()));
-        Toast.makeText(this, isRepeat ? "Repeat ON" : "Repeat OFF", Toast.LENGTH_SHORT).show();
+        if (mediaControllerFuture == null || !mediaControllerFuture.isDone()) return;
+        try {
+            MediaController controller = mediaControllerFuture.get();
+            isRepeat = !isRepeat;
+            controller.setRepeatMode(isRepeat ? Player.REPEAT_MODE_ONE : Player.REPEAT_MODE_OFF);
+            binding.repeatBtn.setColorFilter(isRepeat ? getResources().getColor(R.color.orange, getTheme()) : getResources().getColor(android.R.color.white, getTheme()));
+            Toast.makeText(this, isRepeat ? "Repeat ON" : "Repeat OFF", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private void toggleShuffle() {
-        isShuffle = !isShuffle;
-        if (isShuffle) {
-            Collections.shuffle(shuffledList);
-            binding.shuffleBtn.setColorFilter(getResources().getColor(R.color.orange, getTheme()));
-        } else {
-            Song currentSong = shuffledList.get(currentIndex);
-            shuffledList = new ArrayList<>(songList);
-            currentIndex = shuffledList.indexOf(currentSong);
-            binding.shuffleBtn.clearColorFilter();
-        }
-        Toast.makeText(this, isShuffle ? "Shuffle ON" : "Shuffle OFF", Toast.LENGTH_SHORT).show();
+        if (mediaControllerFuture == null || !mediaControllerFuture.isDone()) return;
+        try {
+            MediaController controller = mediaControllerFuture.get();
+            isShuffle = !isShuffle;
+            controller.setShuffleModeEnabled(isShuffle);
+            binding.shuffleBtn.setColorFilter(isShuffle ? getResources().getColor(R.color.orange, getTheme()) : getResources().getColor(android.R.color.white, getTheme()));
+            Toast.makeText(this, isShuffle ? "Shuffle ON" : "Shuffle OFF", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
-    private void playPrevious() {
-        int listSize = isShuffle ? shuffledList.size() : songList.size();
-        currentIndex = (currentIndex - 1 + listSize) % listSize;
-        initPlayerWithSong(currentIndex);
-    }
+    private void updateUIForCurrentSong() {
+        if (mediaControllerFuture == null || !mediaControllerFuture.isDone()) return;
+        try {
+            MediaController controller = mediaControllerFuture.get();
+            if (controller.getCurrentMediaItem() == null) return;
 
-    private void togglePlayPause() {
-        if (player == null) return;
-        if (player.isPlaying()) {
-            player.pause();
-            handler.removeCallbacks(updateRunnable);
-        } else {
-            player.play();
-            handler.postDelayed(updateRunnable, 0);
-        }
-        updatePlayPauseButtonIcon();
-    }
+            int currentIndex = controller.getCurrentMediaItemIndex();
+            Song song = songList.get(currentIndex);
 
+            binding.songTitleText.setText(song.getTitle());
+            binding.songTitleText.setSelected(true);
+            binding.songArtistText.setText(song.getArtist());
+            binding.songArtistText.setSelected(true);
+            setTitle(song.getTitle());
 
-    private void initPlayerWithSong(int index) {
-        if (songList.isEmpty()) return;
+            Uri albumArtUri = ContentUris.withAppendedId(
+                    Uri.parse("content://media/external/audio/albumart"), song.getAlbumId());
 
-        Song song = isShuffle ? shuffledList.get(index) : songList.get(index);
-
-        if (player != null) player.release();
-        player = new ExoPlayer.Builder(this).build();
-        player.setRepeatMode(isRepeat ? Player.REPEAT_MODE_ONE : Player.REPEAT_MODE_OFF);
-
-        player.addListener(new Player.Listener() {
-            @Override
-            public void onPlaybackStateChanged(int playbackState) {
-                updatePlayPauseButtonIcon();
-                if (playbackState == Player.STATE_READY) {
-                    binding.songDurationtext.setText(formatTime((int) (player.getDuration() / 1000)));
-                    handler.postDelayed(updateRunnable, 0);
-                } else if (playbackState == Player.STATE_ENDED) {
-                    playNext();
-                }
+            if (hasAlbumArt(albumArtUri)) {
+                Glide.with(this).load(albumArtUri).circleCrop().placeholder(R.drawable.ic_music_note_24).error(R.drawable.ic_music_note_24).into(binding.albumArtPlayerImage);
+                Glide.with(this).load(albumArtUri).apply(RequestOptions.bitmapTransform(new BlurTransformation(25, 3))).placeholder(R.drawable.gradient_bg).error(R.drawable.gradient_bg).into(binding.albumArtBg);
+            } else {
+                binding.albumArtPlayerImage.setImageResource(R.drawable.ic_music_note_24);
+                binding.albumArtBg.setImageResource(R.drawable.gradient_bg);
             }
-
-            @Override
-            public void onPlayerError(PlaybackException error) {
-                Toast.makeText(PlayerActivity.this, "Error playing media: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        player.setMediaItem(MediaItem.fromUri(song.getData()));
-        player.prepare();
-        player.play();
-
-        updatePlayPauseButtonIcon();
-        updateUI(song);
+            updatePlayPauseButtonIcon();
+        } catch (Exception e) { e.printStackTrace(); }
     }
-
-    private void updateUI(Song song) {
-        binding.songTitleText.setText(song.getTitle());
-        binding.songTitleText.setSelected(true);
-
-        binding.songArtistText.setText(song.getArtist());
-        binding.songArtistText.setSelected(true);
-
-        setTitle(song.getTitle());
-
-        Uri albumArtUri = ContentUris.withAppendedId(
-                Uri.parse("content://media/external/audio/albumart"), song.getAlbumId());
-
-        if (hasAlbumArt(albumArtUri)) {
-            Glide.with(this)
-                    .asBitmap()
-                    .load(albumArtUri)
-                    .circleCrop()
-                    .placeholder(R.drawable.ic_music_note_24)
-                    .error(R.drawable.ic_music_note_24)
-                    .into(binding.albumArtPlayerImage);
-
-            Glide.with(this)
-                    .asBitmap()
-                    .load(albumArtUri)
-                    .apply(RequestOptions.bitmapTransform(new BlurTransformation(25, 3)))
-                    .placeholder(R.drawable.gradient_bg)
-                    .error(R.drawable.gradient_bg)
-                    .into(binding.albumArtBg);
-        } else {
-            binding.albumArtPlayerImage.setImageResource(R.drawable.ic_music_note_24);
-            binding.albumArtBg.setImageResource(R.drawable.gradient_bg);
-        }
-    }
-
 
     private boolean hasAlbumArt(Uri albumArtUri) {
         try (InputStream inputStream = getContentResolver().openInputStream(albumArtUri)) {
@@ -254,17 +244,21 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
     private void updatePlayPauseButtonIcon() {
-        if (player == null) return;
-        binding.playpauseBtn.setImageResource(
-                player.isPlaying() ? R.drawable.icon_pause_24 : R.drawable.icon_play_24
-        );
+        if (mediaControllerFuture == null || !mediaControllerFuture.isDone()) return;
+        try {
+            binding.playpauseBtn.setImageResource(
+                    mediaControllerFuture.get().isPlaying() ? R.drawable.icon_pause_24 : R.drawable.icon_play_24
+            );
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
-    private void playNext() {
-        if (songList.isEmpty()) return;
-        int listSize = isShuffle ? shuffledList.size() : songList.size();
-        currentIndex = (currentIndex + 1) % listSize;
-        initPlayerWithSong(currentIndex);
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // FIX 4: Release the future, not the controller instance
+        if (mediaControllerFuture != null) {
+            MediaController.releaseFuture(mediaControllerFuture);
+        }
     }
 
     @Override
@@ -272,10 +266,6 @@ public class PlayerActivity extends AppCompatActivity {
         super.onDestroy();
         if (handler != null) {
             handler.removeCallbacks(updateRunnable);
-        }
-        if (player != null) {
-            player.release();
-            player = null;
         }
     }
 }

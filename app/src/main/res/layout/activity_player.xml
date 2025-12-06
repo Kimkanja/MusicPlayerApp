@@ -41,7 +41,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/backBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/backBtn"
-        app:srcCompat="@drawable/icon_equilizer"
+        app:srcCompat="@drawable/icon_favorite_border"
         app:tint="@color/white" />
 
     <ImageView

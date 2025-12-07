@@ -1,130 +1,93 @@
-// Replace this file: app/src/main/java/com/kimani/musicplayerapp/PlaybackService.java
 package com.kimani.musicplayerapp;
 
-import android.app.PendingIntent;
-import android.content.ContentUris;
-import android.content.Intent;import android.net.Uri;
-import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.media3.common.AudioAttributes;
-import androidx.media3.common.C;
+import android.content.Intent;
+import android.net.Uri;
 import androidx.media3.common.MediaItem;
-import androidx.media3.common.MediaMetadata; // Make sure this is imported
+import androidx.media3.common.MediaMetadata;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.session.LibraryResult;
+import androidx.media3.session.MediaLibraryService;
 import androidx.media3.session.MediaSession;
-import androidx.media3.session.MediaSessionService;
-
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class PlaybackService extends MediaSessionService {
+public class PlaybackService extends MediaLibraryService {
 
-    private MediaSession mediaSession;
+    private MediaLibrarySession mediaLibrarySession;
     private ExoPlayer player;
-    private List<Song> songList = new ArrayList<>();
-
 
     @Override
     public void onCreate() {
         super.onCreate();
+        player = new ExoPlayer.Builder(this).build();
+        mediaLibrarySession = new MediaLibrarySession.Builder(this, player, new MediaLibrarySession.Callback() {
+            /**
+             * This method signature has been updated to match the newer versions of the androidx.media3 library.
+             * It now includes a MediaSession.ControllerInfo parameter.
+             */
+            @Override
+            public ListenableFuture<LibraryResult<MediaItem>> onGetLibraryRoot(
+                    MediaLibrarySession session,
+                    MediaSession.ControllerInfo browser, // This parameter was missing
+                    LibraryParams params) {
 
-        // Initialize the player
-        player = new ExoPlayer.Builder(this)
-                .setAudioAttributes(AudioAttributes.DEFAULT, true)
-                .setHandleAudioBecomingNoisy(true)
-                .setWakeMode(C.WAKE_MODE_LOCAL)
-                .build();
-
-        // Create a MediaSession
-        mediaSession = new MediaSession.Builder(this, player)
-                .setSessionActivity(getSingleTopActivity())
-                .build();
+                // For now, we'll return a simple root item, but you can customize this.
+                // It is good practice to return a browsable root item.
+                MediaItem rootItem = new MediaItem.Builder()
+                        .setMediaId("root")
+                        .setMediaMetadata(new MediaMetadata.Builder()
+                                .setTitle("Music Library")
+                                .setIsBrowsable(true)
+                                .setIsPlayable(false)
+                                .build())
+                        .build();
+                return Futures.immediateFuture(LibraryResult.ofItem(rootItem, params));
+            }
+        }).build();
     }
 
-    // This is the activity that will be opened when the user clicks the notification.
-    private PendingIntent getSingleTopActivity() {
-        return PendingIntent.getActivity(
-                this,
-                0,
-                new Intent(this, PlayerActivity.class).setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
-                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
-        );
-    }
-
-    @Nullable
     @Override
-    public MediaSession onGetSession(@NonNull MediaSession.ControllerInfo controllerInfo) {
-        return mediaSession;
+    public MediaLibrarySession onGetSession(MediaSession.ControllerInfo controllerInfo) {
+        return mediaLibrarySession;
     }
 
-
-    // This method is called when PlayerActivity sends the song list and position
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && intent.getAction() != null) {
-            if ("ACTION_START".equals(intent.getAction())) {
-                ArrayList<Song> receivedList = intent.getParcelableArrayListExtra("songList");
-                int position = intent.getIntExtra("position", 0);
+        if (intent != null && "ACTION_START".equals(intent.getAction())) {
+            ArrayList<AudioModel> songList = intent.getParcelableArrayListExtra("songList");
+            int position = intent.getIntExtra("position", 0);
 
-                if (receivedList != null && !receivedList.isEmpty()) {
-                    this.songList = receivedList;
-                    List<MediaItem> mediaItems = new ArrayList<>();
-
-                    // --- THIS IS THE FIX ---
-                    // Build each MediaItem with its corresponding metadata, including Artwork URI
-                    for (Song song : songList) {
-                        // Create the URI for the album art
-                        Uri artworkUri = ContentUris.withAppendedId(
-                                Uri.parse("content://media/external/audio/albumart"),
-                                song.getAlbumId()
-                        );
-
-                        // Create metadata for the song
-                        MediaMetadata mediaMetadata = new MediaMetadata.Builder()
-                                .setTitle(song.getTitle())
-                                .setArtist(song.getArtist())
-                                .setArtworkUri(artworkUri) // <-- ADD THIS LINE
-                                .build();
-
-                        // Build a MediaItem and attach the metadata
-                        MediaItem mediaItem = new MediaItem.Builder()
-                                .setUri(song.getData())
-                                .setMediaMetadata(mediaMetadata)
-                                .build();
-
-                        mediaItems.add(mediaItem);
-                    }
-                    // --- END OF FIX ---
-
-                    player.setMediaItems(mediaItems, position, 0);
-                    player.prepare();
-                    player.play();
+            if (songList != null && !songList.isEmpty()) {
+                List<MediaItem> mediaItems = new ArrayList<>();
+                for (AudioModel song : songList) {
+                    MediaItem mediaItem = new MediaItem.Builder()
+                            .setUri(Uri.parse(song.getPath()))
+                            .setMediaMetadata(new MediaMetadata.Builder()
+                                    .setTitle(song.getTitle())
+                                    .setArtist(song.getArtist())
+                                    .build())
+                            .build();
+                    mediaItems.add(mediaItem);
                 }
+                player.setMediaItems(mediaItems, position, 0);
+                player.prepare();
+                player.play();
             }
         }
         return super.onStartCommand(intent, flags, startId);
     }
 
-
-    @Override
-    public void onTaskRemoved(Intent rootIntent) {
-        // Stop playback and service when the user swipes the app away from recents
-        if (player != null && !player.getPlayWhenReady()) {
-            player.release();
-            stopSelf();
-        }
-    }
-
     @Override
     public void onDestroy() {
-        if (mediaSession != null) {
-            mediaSession.release();
-        }
         if (player != null) {
             player.release();
+        }
+        if (mediaLibrarySession != null) {
+            mediaLibrarySession.release();
         }
         super.onDestroy();
     }

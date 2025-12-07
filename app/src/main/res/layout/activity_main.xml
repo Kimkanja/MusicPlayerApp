@@ -22,17 +22,16 @@
         android:background="#80000000" />
 
 
-
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="48dp"
         android:padding="3dp"
+        android:text="@string/device_songs"
+        android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="@color/white"
-        android:text="@string/device_songs"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -41,11 +40,11 @@
         android:id="@+id/recyclerViewSongs"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:clipToPadding="false"
         android:layout_marginStart="1dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="1dp"
         android:layout_marginBottom="10dp"
+        android:clipToPadding="false"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -60,11 +59,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="408dp"
         android:padding="3dp"
-        android:textSize="18sp"
+        android:text="@string/no_song_found"
         android:textColor="@color/white"
+        android:textSize="18sp"
         android:textStyle="bold"
         android:visibility="invisible"
-        android:text="@string/no_song_found"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -76,9 +75,9 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="12dp"
-        android:src="@drawable/icon_saved_search_24"
         android:background="@color/gray"
         android:backgroundTint="@color/gray"
+        android:src="@drawable/icon_saved_search_24"
         app:backgroundTint="@color/gray"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigationView"
         app:layout_constraintEnd_toEndOf="parent"
@@ -87,25 +86,25 @@
         app:rippleColor="@color/orange" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="45dp"
-        android:id="@+id/bottomNavigationView"
-        android:background="@drawable/bottom_background"
-        android:layout_marginEnd="20dp"
         android:layout_marginStart="20dp"
-        android:layout_marginBottom="30dp"
         android:layout_marginTop="30dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="30dp"
+        android:background="@drawable/bottom_background"
         android:elevation="2dp"
         app:itemActiveIndicatorStyle="@color/orange"
         app:itemBackground="@android:color/transparent"
-        app:menu="@menu/bottom_menu"
         app:itemIconSize="30dp"
         app:itemIconTint="@drawable/item_selector"
         app:itemRippleColor="@android:color/transparent"
         app:labelVisibilityMode="unlabeled"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:menu="@menu/bottom_menu" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

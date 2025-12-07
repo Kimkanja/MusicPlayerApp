@@ -10,7 +10,6 @@ public class SongModel implements Serializable {
     private String url;
     private String coverUrl;
 
-    // A no-argument constructor is important for libraries like Firebase
     public SongModel() {
     }
 
@@ -22,7 +21,6 @@ public class SongModel implements Serializable {
         this.coverUrl = coverUrl;
     }
 
-    // Getter methods for each field
 
     public String getId() {
         return id;

@@ -3,7 +3,6 @@ package com.kimani.musicplayerapp;
 
 import android.content.ComponentName;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,26 +15,21 @@ import androidx.media3.common.Player;
 import androidx.media3.session.MediaController;
 import androidx.media3.session.SessionToken;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.kimani.musicplayerapp.databinding.ActivityPlayerBinding;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import jp.wasabeef.glide.transformations.BlurTransformation;
 
 public class PlayerActivity extends AppCompatActivity {
 
     private ActivityPlayerBinding binding;
     private ListenableFuture<MediaController> mediaControllerFuture;
     private Handler handler;
-    // FIX: Change songList to use AudioModel
-    private List<AudioModel> songList = new ArrayList<>();
+    // --- FIX: This list is now generic to hold metadata, not a specific type ---
+    private List<AudioModel> uiSongList = new ArrayList<>();
     private boolean isShuffle = false;
     private boolean isRepeat = false;
 
@@ -56,7 +50,7 @@ public class PlayerActivity extends AppCompatActivity {
                         handler.postDelayed(this, 1000);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    // This can happen if the controller is released, so it's safe to ignore here
                 }
             }
         }
@@ -71,32 +65,51 @@ public class PlayerActivity extends AppCompatActivity {
 
         handler = new Handler(Looper.getMainLooper());
 
-        // FIX: Receive ParcelableArrayList of AudioModel
-        songList = getIntent().getParcelableArrayListExtra("songList");
-        int initialPosition = getIntent().getIntExtra("position", 0);
+        // --- FIX: Handle both Song and AudioModel lists ---
+        // This logic converts whatever list we receive into a consistent `uiSongList` for the UI.
+        ArrayList<Song> receivedSongList = getIntent().getParcelableArrayListExtra("songList");
+        ArrayList<AudioModel> receivedAudioModelList = getIntent().getParcelableArrayListExtra("songList");
 
-        if (songList == null || songList.isEmpty()) {
+        if (receivedSongList != null && !receivedSongList.isEmpty() && receivedSongList.get(0) instanceof Song) {
+            for (Song song : receivedSongList) {
+                // Convert Song to AudioModel for UI consistency
+                uiSongList.add(new AudioModel(song.getData(), song.getTitle(), "0", song.getArtist()));
+            }
+        } else if (receivedAudioModelList != null && !receivedAudioModelList.isEmpty()) {
+            uiSongList.addAll(receivedAudioModelList);
+        }
+        // --- End of Fix ---
+
+        if (uiSongList.isEmpty()) {
             Toast.makeText(this, "No Songs Found!", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
         binding.waveformSeekBar.setWaveform(createWaveform(), true);
-
-        // Start the service and send the playlist data
-        Intent serviceIntent = new Intent(this, PlaybackService.class);
-        serviceIntent.setAction("ACTION_START");
-        // FIX: Send the ArrayList<AudioModel> to the service
-        serviceIntent.putParcelableArrayListExtra("songList", new ArrayList<>(songList));
-        serviceIntent.putExtra("position", initialPosition);
-        startService(serviceIntent);
-
         setupControls();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+
+        // --- FIX: Pass the correct list type to the service ---
+        Intent serviceIntent = new Intent(this, PlaybackService.class);
+        ArrayList<Song> songListFromMain = getIntent().getParcelableArrayListExtra("songList");
+
+        // We check if the intent came from MainActivity (contains `Song` objects)
+        if (songListFromMain != null && !songListFromMain.isEmpty() && songListFromMain.get(0) instanceof Song) {
+            serviceIntent.setAction("ACTION_START_FROM_MAIN");
+            serviceIntent.putParcelableArrayListExtra("songList", songListFromMain);
+        } else { // Otherwise, assume it's from PlaylistDetailsActivity (contains `AudioModel` objects)
+            serviceIntent.setAction("ACTION_START_FROM_PLAYLIST");
+            serviceIntent.putParcelableArrayListExtra("songList", getIntent().getParcelableArrayListExtra("songList"));
+        }
+        serviceIntent.putExtra("position", getIntent().getIntExtra("position", 0));
+        startService(serviceIntent);
+        // --- End of Fix ---
+
         SessionToken sessionToken = new SessionToken(this, new ComponentName(this, PlaybackService.class));
         mediaControllerFuture = new MediaController.Builder(this, sessionToken).buildAsync();
 
@@ -104,7 +117,7 @@ public class PlayerActivity extends AppCompatActivity {
             try {
                 MediaController mediaController = mediaControllerFuture.get();
                 mediaController.addListener(playerListener);
-                updateUIForCurrentSong();
+                updateUIForCurrentSong(mediaController); // Update UI as soon as controller is ready
                 handler.post(updateRunnable);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -115,14 +128,20 @@ public class PlayerActivity extends AppCompatActivity {
     private final Player.Listener playerListener = new Player.Listener() {
         @Override
         public void onMediaItemTransition(@androidx.annotation.Nullable MediaItem mediaItem, int reason) {
-            updateUIForCurrentSong();
-            handler.post(updateRunnable);
+            if (mediaControllerFuture.isDone()) {
+                try {
+                    updateUIForCurrentSong(mediaControllerFuture.get());
+                    handler.post(updateRunnable);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         @Override
         public void onIsPlayingChanged(boolean isPlaying) {
             updatePlayPauseButtonIcon();
-            if(isPlaying){
+            if (isPlaying) {
                 handler.post(updateRunnable);
             } else {
                 handler.removeCallbacks(updateRunnable);
@@ -184,29 +203,31 @@ public class PlayerActivity extends AppCompatActivity {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    private void updateUIForCurrentSong() {
-        if (mediaControllerFuture == null || !mediaControllerFuture.isDone()) return;
+    private void updateUIForCurrentSong(MediaController controller) {
+        if (controller == null || controller.getMediaItemCount() == 0) {
+            return;
+        }
+
         try {
-            MediaController controller = mediaControllerFuture.get();
-            if (controller.getCurrentMediaItem() == null) return;
-
             int currentIndex = controller.getCurrentMediaItemIndex();
-            // FIX: Get the song from the AudioModel list
-            AudioModel song = songList.get(currentIndex);
 
-            binding.songTitleText.setText(song.getTitle());
-            binding.songTitleText.setSelected(true);
-            binding.songArtistText.setText(song.getArtist());
-            binding.songArtistText.setSelected(true);
-            setTitle(song.getTitle());
+            if (uiSongList != null && !uiSongList.isEmpty() && currentIndex >= 0 && currentIndex < uiSongList.size()) {
+                AudioModel song = uiSongList.get(currentIndex);
 
-            // FIX: AudioModel doesn't have album art, so we use a placeholder.
-            // You can add albumId to AudioModel later if needed.
-            binding.albumArtPlayerImage.setImageResource(R.drawable.ic_music_note_24);
-            binding.albumArtBg.setImageResource(R.drawable.gradient_bg);
+                binding.songTitleText.setText(song.getTitle());
+                binding.songTitleText.setSelected(true);
+                binding.songArtistText.setText(song.getArtist());
+                binding.songArtistText.setSelected(true);
+                setTitle(song.getTitle());
 
-            updatePlayPauseButtonIcon();
-        } catch (Exception e) { e.printStackTrace(); }
+                binding.albumArtPlayerImage.setImageResource(R.drawable.ic_music_note_24);
+                binding.albumArtBg.setImageResource(R.drawable.gradient_bg);
+
+                updatePlayPauseButtonIcon();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private String formatTime(int seconds) {
@@ -235,6 +256,13 @@ public class PlayerActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         if (mediaControllerFuture != null) {
+            mediaControllerFuture.addListener(() -> {
+                try {
+                    mediaControllerFuture.get().removeListener(playerListener);
+                } catch (Exception e) {
+                    // Ignore
+                }
+            }, MoreExecutors.directExecutor());
             MediaController.releaseFuture(mediaControllerFuture);
         }
     }

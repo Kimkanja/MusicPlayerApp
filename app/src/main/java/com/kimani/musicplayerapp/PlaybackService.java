@@ -1,5 +1,6 @@
+// C:/Users/PC/Desktop/MusicPlayerApp/kimani/MusicPlayerApp/app/src/main/java/com/kimani/musicplayerapp/PlaybackService.java
 package com.kimani.musicplayerapp;
-
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.net.Uri;
 import androidx.media3.common.MediaItem;
@@ -14,6 +15,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class PlaybackService extends MediaLibraryService {
 
@@ -25,18 +27,11 @@ public class PlaybackService extends MediaLibraryService {
         super.onCreate();
         player = new ExoPlayer.Builder(this).build();
         mediaLibrarySession = new MediaLibrarySession.Builder(this, player, new MediaLibrarySession.Callback() {
-            /**
-             * This method signature has been updated to match the newer versions of the androidx.media3 library.
-             * It now includes a MediaSession.ControllerInfo parameter.
-             */
             @Override
             public ListenableFuture<LibraryResult<MediaItem>> onGetLibraryRoot(
                     MediaLibrarySession session,
-                    MediaSession.ControllerInfo browser, // This parameter was missing
+                    MediaSession.ControllerInfo browser,
                     LibraryParams params) {
-
-                // For now, we'll return a simple root item, but you can customize this.
-                // It is good practice to return a browsable root item.
                 MediaItem rootItem = new MediaItem.Builder()
                         .setMediaId("root")
                         .setMediaMetadata(new MediaMetadata.Builder()
@@ -48,6 +43,11 @@ public class PlaybackService extends MediaLibraryService {
                 return Futures.immediateFuture(LibraryResult.ofItem(rootItem, params));
             }
         }).build();
+
+        // Set the PendingIntent to open PlayerActivity on notification click
+        Intent playerIntent = new Intent(this, PlayerActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, playerIntent, PendingIntent.FLAG_IMMUTABLE);
+        mediaLibrarySession.setSessionActivity(pendingIntent);
     }
 
     @Override
@@ -57,22 +57,42 @@ public class PlaybackService extends MediaLibraryService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && "ACTION_START".equals(intent.getAction())) {
-            ArrayList<AudioModel> songList = intent.getParcelableArrayListExtra("songList");
+        if (intent != null && intent.getAction() != null) {
+            String action = intent.getAction();
             int position = intent.getIntExtra("position", 0);
+            List<MediaItem> mediaItems = new ArrayList<>();
 
-            if (songList != null && !songList.isEmpty()) {
-                List<MediaItem> mediaItems = new ArrayList<>();
-                for (AudioModel song : songList) {
-                    MediaItem mediaItem = new MediaItem.Builder()
-                            .setUri(Uri.parse(song.getPath()))
-                            .setMediaMetadata(new MediaMetadata.Builder()
-                                    .setTitle(song.getTitle())
-                                    .setArtist(song.getArtist())
-                                    .build())
-                            .build();
-                    mediaItems.add(mediaItem);
+            // --- FIX: Handle both Actions and their corresponding list types ---
+            if (action.equals("ACTION_START_FROM_PLAYLIST")) {
+                ArrayList<AudioModel> songList = intent.getParcelableArrayListExtra("songList");
+                if (songList != null && !songList.isEmpty()) {
+                    for (AudioModel song : songList) {
+                        mediaItems.add(new MediaItem.Builder()
+                                .setUri(Uri.parse(song.getPath()))
+                                .setMediaMetadata(new MediaMetadata.Builder()
+                                        .setTitle(song.getTitle())
+                                        .setArtist(song.getArtist())
+                                        .build())
+                                .build());
+                    }
                 }
+            } else if (action.equals("ACTION_START_FROM_MAIN")) {
+                ArrayList<Song> songList = intent.getParcelableArrayListExtra("songList");
+                if (songList != null && !songList.isEmpty()) {
+                    for (Song song : songList) {
+                        mediaItems.add(new MediaItem.Builder()
+                                .setUri(Uri.parse(song.getData()))
+                                .setMediaMetadata(new MediaMetadata.Builder()
+                                        .setTitle(song.getTitle())
+                                        .setArtist(song.getArtist())
+                                        .build())
+                                .build());
+                    }
+                }
+            }
+            // --- End of Fix ---
+
+            if (!mediaItems.isEmpty()) {
                 player.setMediaItems(mediaItems, position, 0);
                 player.prepare();
                 player.play();

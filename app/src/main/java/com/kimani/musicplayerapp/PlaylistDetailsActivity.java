@@ -147,12 +147,19 @@ public class PlaylistDetailsActivity extends AppCompatActivity implements MusicA
         // Create an Intent to start PlayerActivity
         Intent intent = new Intent(this, PlayerActivity.class);
 
+        // --- FIX: Add a specific action to the intent ---
+        // This tells PlayerActivity to start a new playback session.
+        intent.setAction("ACTION_START_FROM_PLAYLIST");
+        // --- End of Fix ---
+
         // Put the list of songs and the clicked position into the intent.
         intent.putParcelableArrayListExtra("songList", songsInPlaylist);
         intent.putExtra("position", position);
 
         startActivity(intent);
     }
+
+
 
 
     @Override

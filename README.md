@@ -21,82 +21,79 @@
 
 * **Search Functionality:** Quickly find songs in both local and online libraries.
 * **Download Management:** Efficiently monitor and manage downloaded music tracks.
-* **Etc:** Additional enhancements and new features based on user feedback.
+* **Etc:** Additional enhancements and new features to be implemented based on user feedback and evolving app requirements.
 
 ---
 
 ## App Screenshots
 
-Below are some screenshots demonstrating the interface and features:
-
-<p><img src="screenshots/login.png" width="320"/></p>
-*Login screen shows up for users with registered accounts.*
-
-<p><img src="screenshots/register.png" width="320"/></p>
-*Register screen for new users.*
-
-<p><img src="screenshots/splash.png" width="320"/></p>
-*Splash screen welcoming the user.*
-
-<p><img src="screenshots/home.png" width="320"/></p>
-*Home screen showing playlists and navigation.*
-
-<p><img src="screenshots/player1.jpg" width="320"/></p>
-*Offline player screen with cover image.*
-
-<p><img src="screenshots/player2.png" width="320"/></p>
-*Player screen with waveform and no cover image.*
-
-<p><img src="screenshots/search.png" width="320"/></p>
-*Future search feature mockup.*
-
-<p><img src="screenshots/main.png" width="320"/></p>
-*Offline playlist screen with available songs.*
-
-<p><img src="screenshots/playlist.png" width="320"/></p>
-*User-created custom playlists screen.*
-
-<p><img src="screenshots/lockscreen.png" width="320"/></p>
-*Phone lock screen showing ongoing playback.*
-
-<p><img src="screenshots/notification.png" width="320"/></p>
-*Notification controls while music is playing.*
-
-<p><img src="screenshots/online_player.png" width="320"/></p>
-*Online streaming player interface.*
+<p align="center">
+  <img src="screenshots/login.png" width="200" />
+  <img src="screenshots/register.png" width="200" />
+</p>
+<p align="center">
+  <img src="screenshots/splash.png" width="200" />
+  <img src="screenshots/home.png" width="200" />
+</p>
+<p align="center">
+  <img src="screenshots/player1.jpg" width="200" />
+  <img src="screenshots/player2.png" width="200" />
+</p>
+<p align="center">
+  <img src="screenshots/search.png" width="200" />
+  <img src="screenshots/main.png" width="200" />
+</p>
+<p align="center">
+  <img src="screenshots/playlist.png" width="200" />
+  <img src="screenshots/lockscreen.png" width="200" />
+</p>
+<p align="center">
+  <img src="screenshots/notification.png" width="200" />
+  <img src="screenshots/online_player.png" width="200" />
+</p>
 
 ---
 
 ## Technologies and Tools
 
 * **Programming Language:** Java
-* **Build System:** Gradle (Groovy)
-* **Android SDK:** 36 (min SDK 24, target SDK 36)
-* **UI/UX:** Material Design Components
+* **Build System:** Gradle (Groovy scripts)
+* **Android SDK:** 36 (minimum SDK 24, target SDK 36)
+* **UI/UX Framework:** Material Design Components
 * **Libraries & Dependencies:**
+    * Material Design: `com.google.android.material:material:1.11.0`
+    * AndroidX Core: `androidx.core:core-ktx:1.12.0`
     * Firebase Authentication and Firestore
-    * ExoPlayer (Media3)
-    * Glide + Transformations
-    * WaveformSeekBar
+    * ExoPlayer (Media3) for advanced media playback
+    * Glide for image loading and transformations
+    * WaveformSeekBar for visual audio progress representation
     * RecyclerView, Palette, and other AndroidX libraries
 
 ---
 
 ## Project Structure and Module Types
 
-**Application Module**
-* Uses `com.android.application` plugin
-* Produces full APK/AAB for installation
+**MusicPlayerApp** is structured as a complete **Android Application Module**:
 
-**Library Module (optional)**
-* Uses `com.android.library` plugin
-* Provides reusable components
+1. **Application Module**
+    * Plugin: `id 'com.android.application'`
+    * Produces a full Android app (APK/AAB) that can be installed on devices.
+    * Includes `applicationId` in `build.gradle`.
+    * Example: The main MusicPlayerApp used by end-users.
+
+2. **Library Module** (if applicable)
+    * Plugin: `id 'com.android.library'`
+    * Produces reusable components (.aar) for other apps.
+    * No `applicationId` required.
+    * Example: Shared UI components or utility modules.
+
+> Think of it like this: Application = a finished car. Library = an engine that can be installed in any car.
 
 ---
 
 ## Setup Instructions
 
-```bash
-git clone https://github.com/your-username/MusicPlayerApp.git
-cd MusicPlayerApp
-git
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/your-username/MusicPlayerApp.git
+   cd MusicPlayerApp

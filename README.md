@@ -21,35 +21,46 @@
 
 * **Search Functionality:** Quickly find songs in both local and online libraries.
 * **Download Management:** Efficiently monitor and manage downloaded music tracks.
-* **Etc:** Additional enhancements and new features to be implemented based on user feedback and evolving app requirements.
+* **Etc:** Additional enhancements and new features based on user feedback.
 
 ---
 
 ## App Screenshots
 
 <p align="center">
-  <img src="screenshots/login.png" width="200" />
-  <img src="screenshots/register.png" width="200" />
+  <img src="screenshots/login.png" width="200" />  
+  <img src="screenshots/register.png" width="200" />  
+  <br>Login screen and Register screen
 </p>
+
 <p align="center">
-  <img src="screenshots/splash.png" width="200" />
-  <img src="screenshots/home.png" width="200" />
+  <img src="screenshots/splash.png" width="200" />  
+  <img src="screenshots/home.png" width="200" />  
+  <br>Splash screen and Home screen
 </p>
+
 <p align="center">
-  <img src="screenshots/player1.jpg" width="200" />
-  <img src="screenshots/player2.png" width="200" />
+  <img src="screenshots/player1.jpg" width="200" />  
+  <img src="screenshots/player2.png" width="200" />  
+  <br>Offline player screens
 </p>
+
 <p align="center">
-  <img src="screenshots/search.png" width="200" />
-  <img src="screenshots/main.png" width="200" />
+  <img src="screenshots/search.png" width="200" />  
+  <img src="screenshots/main.png" width="200" />  
+  <br>Search feature mockup and Playlist screen
 </p>
+
 <p align="center">
-  <img src="screenshots/playlist.png" width="200" />
-  <img src="screenshots/lockscreen.png" width="200" />
+  <img src="screenshots/playlist.png" width="200" />  
+  <img src="screenshots/lockscreen.png" width="200" />  
+  <br>Custom playlists and Lock screen playback
 </p>
+
 <p align="center">
-  <img src="screenshots/notification.png" width="200" />
-  <img src="screenshots/online_player.png" width="200" />
+  <img src="screenshots/notification.png" width="200" />  
+  <img src="screenshots/online_player.png" width="200" />  
+  <br>Notification controls and Online player
 </p>
 
 ---
@@ -57,43 +68,32 @@
 ## Technologies and Tools
 
 * **Programming Language:** Java
-* **Build System:** Gradle (Groovy scripts)
-* **Android SDK:** 36 (minimum SDK 24, target SDK 36)
-* **UI/UX Framework:** Material Design Components
+* **Build System:** Gradle (Groovy)
+* **Android SDK:** 36 (min SDK 24, target SDK 36)
+* **UI/UX:** Material Design Components
 * **Libraries & Dependencies:**
-    * Material Design: `com.google.android.material:material:1.11.0`
-    * AndroidX Core: `androidx.core:core-ktx:1.12.0`
     * Firebase Authentication and Firestore
-    * ExoPlayer (Media3) for advanced media playback
-    * Glide for image loading and transformations
-    * WaveformSeekBar for visual audio progress representation
+    * ExoPlayer (Media3)
+    * Glide + Transformations
+    * WaveformSeekBar
     * RecyclerView, Palette, and other AndroidX libraries
 
 ---
 
 ## Project Structure and Module Types
 
-**MusicPlayerApp** is structured as a complete **Android Application Module**:
+**Application Module**
+* Uses `com.android.application` plugin
+* Produces full APK/AAB for installation
 
-1. **Application Module**
-    * Plugin: `id 'com.android.application'`
-    * Produces a full Android app (APK/AAB) that can be installed on devices.
-    * Includes `applicationId` in `build.gradle`.
-    * Example: The main MusicPlayerApp used by end-users.
-
-2. **Library Module** (if applicable)
-    * Plugin: `id 'com.android.library'`
-    * Produces reusable components (.aar) for other apps.
-    * No `applicationId` required.
-    * Example: Shared UI components or utility modules.
-
-> Think of it like this: Application = a finished car. Library = an engine that can be installed in any car.
+**Library Module (optional)**
+* Uses `com.android.library` plugin
+* Provides reusable components
 
 ---
 
 ## Setup Instructions
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/your-username/MusicPlayerApp.git
-   cd MusicPlayerApp
+```bash
+git clone https://github.com/your-username/MusicPlayerApp.git
+cd MusicPlayerApp

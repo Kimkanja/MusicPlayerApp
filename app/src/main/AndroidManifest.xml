@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <!-- Permissions for local media access -->
-    <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"
+    <!-- Permissions -->
+    <uses-permission        android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" /> <!-- Permissions for network access -->
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- ADDED: Permissions required for Foreground Service -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" /> <!-- Required for Android 13+ to show notifications -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
@@ -28,20 +27,25 @@
             android:exported="false" />
         <activity
             android:name=".PlaylistDetailsActivity"
-            android:exported="false" /> <!-- Your Activities -->
+            android:exported="false" />
+
+        <!-- SplashActivity is no longer the launcher -->
         <activity
             android:name=".SplashActivity"
-            android:exported="true"
-            android:theme="@style/Theme.AppCompat.NoActionBar">
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
+
+        <!-- LoginActivity is NOW the launcher -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".LoginActivity"
-            android:exported="false" />
+
+        <!-- Other Activities -->
         <activity
             android:name=".SignupActivity"
             android:exported="false" />
@@ -70,7 +74,9 @@
             android:exported="false" />
         <activity
             android:name=".ProfileActivity"
-            android:exported="false" /> <!-- ADDED: Service Declaration for background playback -->
+            android:exported="false" />
+
+        <!-- Service -->
         <service
             android:name=".PlaybackService"
             android:exported="true"

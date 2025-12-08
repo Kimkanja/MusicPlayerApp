@@ -5,13 +5,14 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg2"
-    tools:context=".HomeActivity">
+    android:background="@drawable/bg1"
+    tools:context=".HomeActivity"
+    android:fitsSystemWindows="true">
 
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#88000000" />
+        android:background="#99000000" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -31,9 +32,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Your Custom Activities"
+                android:fontFamily="cursive"
+                android:text="Here is Your Playlist"
                 android:textColor="@color/white"
-                android:textSize="26sp"
+                android:textSize="30sp"
                 android:textStyle="bold" />
 
         </RelativeLayout>
@@ -50,34 +52,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- 1. ARTIST SECTION -->
-                <LinearLayout
-                    android:id="@+id/artist_section"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="serif-monospace"
-                        android:text="Your Favourite Artists"
-                        android:textColor="#FF6A00"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/artistRecyclerView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="10dp" />
-
-                </LinearLayout>
-
-                <!-- 2. NEW: CUSTOM PLAYLIST SECTION -->
                 <LinearLayout
                     android:id="@+id/playlist_section"
                     android:layout_width="match_parent"

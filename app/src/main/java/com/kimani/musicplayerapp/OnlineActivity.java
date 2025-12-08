@@ -21,7 +21,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
+// Import the generated ViewBinding class for your dialog
+import com.kimani.musicplayerapp.databinding.DialogCreatePlaylistBinding;
 import com.kimani.musicplayerapp.models.PlaylistModel;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -109,26 +113,32 @@ public class OnlineActivity extends AppCompatActivity {
     }
 
     private void showCreatePlaylistDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Create New Playlist");
+        // 1. Inflate your custom layout using ViewBinding
+        DialogCreatePlaylistBinding binding = DialogCreatePlaylistBinding.inflate(getLayoutInflater());
 
-        final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
-        input.setHint("e.g., Driving Mix");
-        input.setPadding(50, 40, 50, 40);
-        builder.setView(input);
+        // 2. Create a MaterialAlertDialogBuilder
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setView(binding.getRoot()) // Set the custom view from your binding
+                .setPositiveButton("Create", (d, which) -> {
+                    // Get the text from the input field in your custom layout
+                    String playlistName = binding.inputPlaylistName.getText().toString().trim();
+                    if (!playlistName.isEmpty()) {
+                        savePlaylist(playlistName);
+                    } else {
+                        Toast.makeText(OnlineActivity.this, "Playlist name cannot be empty", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancel", (d, which) -> d.dismiss())
+                .create();
 
-        builder.setPositiveButton("Create", (dialog, which) -> {
-            String playlistName = input.getText().toString().trim();
-            if (!playlistName.isEmpty()) {
-                savePlaylist(playlistName);
-            } else {
-                Toast.makeText(OnlineActivity.this, "Playlist name cannot be empty", Toast.LENGTH_SHORT).show();
-            }
-        });
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-        builder.show();
+        // 3. Customize the dialog's appearance and show it
+        // Use the same background as your items for a consistent look
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(R.drawable.glow_effect_item);
+        }
+        dialog.show();
     }
+
 
     private void savePlaylist(String name) {
         SharedPreferences prefs = getSharedPreferences("Playlists", MODE_PRIVATE);

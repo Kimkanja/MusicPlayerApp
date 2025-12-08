@@ -20,7 +20,7 @@
             android:id="@+id/playlistIcon"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:src="@drawable/icon_playlist"
+            android:src="@drawable/icon_playlist_play_24"
             app:tint="@color/orange" />
 
         <TextView

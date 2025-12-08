@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Choose your action"
+        android:fontFamily="monospace"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@color/blue"

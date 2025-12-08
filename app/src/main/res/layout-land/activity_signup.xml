@@ -1,23 +1,24 @@
-<!-- Replace this file: res/layout/activity_signup.xml -->
+<!-- Replace this file: res/layout-land/activity_signup.xml -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".SignupActivity">
 
     <!-- Background Image -->
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/bg4"
+        android:src="@drawable/bg1"
         android:scaleType="centerCrop" />
 
     <!-- Dark Overlay -->
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#80000000" />
+        android:background="#99000000" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -77,6 +78,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Email address"
+                android:textColorHint="@color/white"
+                app:startIconTint="@color/white"
                 app:startIconDrawable="@drawable/icon_email">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -84,6 +87,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
+                    android:textColor="@color/white"
                     android:maxLines="1" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -98,6 +102,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Password"
+                android:textColorHint="@color/white"
+                app:startIconTint="@color/white"
                 app:startIconDrawable="@drawable/icon_lock">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -105,6 +111,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
+                    android:textColor="@color/white"
                     android:maxLines="1" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -119,6 +126,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Confirm Password"
+                android:textColorHint="@color/white"
+                app:startIconTint="@color/white"
                 app:startIconDrawable="@drawable/icon_lock">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -126,6 +135,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
+                    android:textColor="@color/white"
                     android:maxLines="1" />
 
             </com.google.android.material.textfield.TextInputLayout>

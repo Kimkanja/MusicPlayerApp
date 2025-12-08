@@ -2,8 +2,8 @@
     <!-- Base application theme. -->
     <style name="Theme.MusicPlayerApp" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <item name="android:statusBarColor">@color/white</item>
-         <item name="android:windowLightStatusBar">true</item>-->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+         <item name="android:windowLightStatusBar">false</item>-->
 
     </style>
 
@@ -14,5 +14,26 @@
 
 
     </style>
+    <!-- Your existing Base.Theme.MusicPlayerApp -->
+    <style name="Base.Theme.MusicPlayerApp"
+        parent="Theme.Material3.DayNight.NoActionBar">        <!-- Primary brand color. -->
+        <!-- ... other colors ... -->
+    </style>
 
+    <!-- ADD THIS NEW STYLE -->
+    <style name="Theme.MusicPlayerApp.EdgeToEdge" parent="Theme.MusicPlayerApp">
+        <!-- Make status and navigation bars transparent -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+
+        <!-- Tell the system to draw behind the bars -->
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
+
+
+
+    <!-- <style name="Theme.MusicPlayerApp" parent="Base.Theme.MusicPlayerApp" /> -->
 </resources>

@@ -37,8 +37,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="User Name"
+        android:fontFamily="cursive"
         android:textColor="@color/white"
-        android:textSize="24sp"
+        android:textSize="26sp"
         android:textStyle="bold"
         android:layout_marginTop="16dp"
         app:layout_constraintTop_toBottomOf="@id/profile_image_view"
@@ -49,6 +50,7 @@
     <TextView
         android:id="@+id/user_email_text_view"
         android:layout_width="wrap_content"
+        android:fontFamily="monospace"
         android:layout_height="wrap_content"
         android:text="user.email@example.com"
         android:textColor="@android:color/darker_gray"
@@ -91,7 +93,7 @@
                 <ImageView
                     android:layout_width="26dp"
                     android:layout_height="26dp"
-                    android:src="@drawable/icon_home_24" />
+                    android:src="@drawable/icon_count" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -122,7 +124,7 @@
                 <ImageView
                     android:layout_width="26dp"
                     android:layout_height="26dp"
-                    android:src="@drawable/icon_logout" />
+                    android:src="@drawable/icon_time" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -162,7 +164,7 @@
                 <ImageView
                     android:layout_width="26dp"
                     android:layout_height="26dp"
-                    android:src="@drawable/icon_logout" />
+                    android:src="@drawable/icon_today" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -193,7 +195,7 @@
                 <ImageView
                     android:layout_width="26dp"
                     android:layout_height="26dp"
-                    android:src="@drawable/icon_home_24" />
+                    android:src="@drawable/icon_weigh" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -225,11 +227,12 @@
             android:gravity="center"
             android:background="#333333"
             android:textColor="#FFFFFF"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            app:startIconDrawable="@drawable/icon_share"/>
     </LinearLayout>
 
     <!-- Logout Button -->
-    <androidx.appcompat.widget.AppCompatButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/logout_btn"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -239,10 +242,14 @@
         android:layout_marginStart="26dp"
         android:layout_marginEnd="26dp"
         android:layout_marginBottom="90dp"
-        android:background="#333333"
+        android:backgroundTint="#333333"
+        app:icon="@drawable/icon_logout"
+        app:iconTint="@color/white"
+        app:iconGravity="textEnd"
         app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
+
 
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView

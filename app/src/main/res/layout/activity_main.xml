@@ -14,12 +14,12 @@
         android:layout_height="wrap_content"
         android:scaleType="centerCrop"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/song_background" />
+        app:srcCompat="@drawable/bg1" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#80000000" />
+        android:background="#99000000" />
 
 
     <TextView
@@ -28,9 +28,10 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="48dp"
         android:padding="3dp"
+        android:fontFamily="cursive"
         android:text="@string/device_songs"
         android:textColor="@color/white"
-        android:textSize="20sp"
+        android:textSize="30sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

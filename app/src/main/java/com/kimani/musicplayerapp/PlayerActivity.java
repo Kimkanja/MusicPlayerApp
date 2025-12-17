@@ -1,4 +1,3 @@
-// C:/Users/PC/Desktop/MusicPlayerApp/kimani/MusicPlayerApp/app/src/main/java/com/kimani/musicplayerapp/PlayerActivity.java
 package com.kimani.musicplayerapp;
 
 import android.content.ComponentName;

@@ -1,4 +1,3 @@
-// Replace this file: app/src/main/java/com/kimani/musicplayerapp/Song.java
 package com.kimani.musicplayerapp;
 
 import android.os.Parcel;

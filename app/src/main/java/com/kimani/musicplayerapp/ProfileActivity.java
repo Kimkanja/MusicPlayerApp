@@ -1,4 +1,3 @@
-// Create or Replace this file: app/src/main/java/com/kimani/musicplayerapp/ProfileActivity.java
 package com.kimani.musicplayerapp;
 
 import android.content.Intent;

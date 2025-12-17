@@ -1,4 +1,3 @@
-// Replace this file: app/src/main/java/com/kimani/musicplayerapp/SignupActivity.java
 package com.kimani.musicplayerapp;
 
 import androidx.appcompat.app.AlertDialog;

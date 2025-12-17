@@ -1,4 +1,3 @@
-// Replace this file: app/src/main/java/com/kimani/musicplayerapp/LoginActivity.java
 package com.kimani.musicplayerapp;
 
 import android.content.Intent;

@@ -1,4 +1,3 @@
-// File: app/src/main/java/com/kimani/musicplayerapp/NetworkUtils.java
 package com.kimani.musicplayerapp;
 
 import android.content.Context;

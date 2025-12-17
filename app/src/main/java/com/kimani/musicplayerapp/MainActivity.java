@@ -1,4 +1,3 @@
-// Replace this file: app/src/main/java/com/kimani/musicplayerapp/MainActivity.java
 package com.kimani.musicplayerapp;
 
 import android.Manifest;

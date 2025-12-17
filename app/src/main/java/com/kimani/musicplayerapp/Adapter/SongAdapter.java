@@ -71,7 +71,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewholder
 
         holder.itemView.startAnimation(
                 AnimationUtils.loadAnimation(holder.itemView.getContext(),
-                        R.anim.scroll_recylerview)
+                        R.anim.scroll_recyclerview)
         );
 
         // Use the public getter for albumId

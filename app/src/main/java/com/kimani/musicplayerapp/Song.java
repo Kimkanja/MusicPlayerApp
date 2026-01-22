@@ -8,7 +8,7 @@ public class Song implements Parcelable {
 
     private final long id;
     private String title;
-    private String artist; // <-- This will now be modifiable
+    private String artist;
     private final String data;
     private final long albumId;
 
@@ -24,6 +24,10 @@ public class Song implements Parcelable {
     public long getId() { return id; }
     public String getTitle() { return title; }
     public String getArtist() { return artist; }
+
+    // This is the specific method needed to fix the "cannot find symbol" error
+    public String getPath() { return data; }
+
     public String getData() { return data; }
     public long getAlbumId() { return albumId; }
 
@@ -32,7 +36,6 @@ public class Song implements Parcelable {
         this.title = newTitle;
     }
 
-    // New setter for the artist
     public void setArtist(String newArtist) {
         this.artist = newArtist;
     }

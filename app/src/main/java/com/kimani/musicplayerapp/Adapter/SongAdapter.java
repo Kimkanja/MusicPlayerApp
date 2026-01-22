@@ -1,10 +1,6 @@
-// Replace this file: app/src/main/java/com/kimani/musicplayerapp/Adapter/SongAdapter.java
 package com.kimani.musicplayerapp.Adapter;
 
-import android.content.ContentUris;
-import android.net.Uri;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 
@@ -13,79 +9,66 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.kimani.musicplayerapp.R;
-import com.kimani.musicplayerapp.Song;
 import com.kimani.musicplayerapp.databinding.ItemSongBinding;
+import com.kimani.musicplayerapp.models.TrackInfo;
 
 import java.util.List;
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewholder> {
 
-    private final List<Song> songs;
+    private final List<TrackInfo> songs;
     private final OnItemClickListener listener;
-    private final OnItemLongClickListener longClickListener;
 
-    // ----- Click Listener -----
+    // Interface to handle clicks back in SearchActivity
     public interface OnItemClickListener {
-        void OnItemClick(int position);
+        void onItemClick(TrackInfo track);
     }
 
-    // ----- Long Click Listener -----
-    public interface OnItemLongClickListener {
-        void onItemLongClick(int position);
-    }
-
-    // ----- Constructor -----
-    public SongAdapter(List<Song> songs, OnItemClickListener listener,
-                       OnItemLongClickListener longClickListener) {
+    public SongAdapter(List<TrackInfo> songs, OnItemClickListener listener) {
         this.songs = songs;
         this.listener = listener;
-        this.longClickListener = longClickListener;
-    }
-
-    // ----- Delete Method -----
-    public void deleteSong(int position) {
-        if (position >= 0 && position < songs.size()) {
-            songs.remove(position);
-            notifyItemRemoved(position);
-        }
     }
 
     @NonNull
     @Override
-    public SongAdapter.SongViewholder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public SongViewholder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        // Using ViewBinding as seen in your previous code
         ItemSongBinding binding = ItemSongBinding.inflate(
                 LayoutInflater.from(parent.getContext()),
                 parent,
                 false
         );
-        return new SongViewholder(binding, listener, longClickListener);
+        return new SongViewholder(binding);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull SongAdapter.SongViewholder holder, int position) {
-        Song song = songs.get(position);
+    public void onBindViewHolder(@NonNull SongViewholder holder, int position) {
+        TrackInfo track = songs.get(position);
 
-        // Use the public getter methods to access the private fields
-        holder.binding.textTitle.setText(song.getTitle());
-        holder.binding.textArtist.setText(song.getArtist());
+        // Set Text Data
+        holder.binding.textTitle.setText(track.getTitle());
+        holder.binding.textArtist.setText(track.getSubtitle());
 
+        // Animation
         holder.itemView.startAnimation(
                 AnimationUtils.loadAnimation(holder.itemView.getContext(),
                         R.anim.scroll_recyclerview)
         );
 
-        // Use the public getter for albumId
-        Uri albumArtUri = ContentUris.withAppendedId(
-                Uri.parse("content://media/external/audio/albumart"),
-                song.getAlbumId()
-        );
-
+        // Load Cover Art from URL using Glide
         Glide.with(holder.binding.getRoot().getContext())
-                .load(albumArtUri)
+                .load(track.getCoverUrl())
                 .circleCrop()
                 .placeholder(R.drawable.ic_music_note_24)
                 .error(R.drawable.ic_music_note_24)
                 .into(holder.binding.imageAlbumArt);
+
+        // Click Listener for Playback
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(track);
+            }
+        });
     }
 
     @Override
@@ -93,37 +76,12 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewholder
         return songs.size();
     }
 
-    // ----- ViewHolder -----
     public static class SongViewholder extends RecyclerView.ViewHolder {
-
         final ItemSongBinding binding;
 
-        public SongViewholder(ItemSongBinding binding,
-                              OnItemClickListener clickListener,
-                              OnItemLongClickListener longClickListener) {
+        public SongViewholder(ItemSongBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
-
-            // Normal click
-            binding.getRoot().setOnClickListener(view -> {
-                if (clickListener != null) {
-                    int pos = getAbsoluteAdapterPosition();
-                    if (pos != RecyclerView.NO_POSITION) {
-                        clickListener.OnItemClick(pos);
-                    }
-                }
-            });
-
-            // Long press
-            binding.getRoot().setOnLongClickListener(view -> {
-                if (longClickListener != null) {
-                    int pos = getAbsoluteAdapterPosition();
-                    if (pos != RecyclerView.NO_POSITION) {
-                        longClickListener.onItemLongClick(pos);
-                    }
-                }
-                return true;
-            });
         }
     }
 }

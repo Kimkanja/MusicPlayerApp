@@ -1,5 +1,7 @@
 # MusicPlayerApp
 
+![SlideGuard Dashboard](screenshots/icon.png)
+
 **MusicPlayerApp** is a modern and fully-featured Android music player application developed using **Java** and configured with **Gradle (Groovy scripts)**. The app offers a seamless music experience, supporting **online streaming**, **offline playback**, **playlist management**, and **downloads**, enabling users to enjoy their favorite music anytime, anywhere.
 
 ---
@@ -11,15 +13,15 @@
 * **Playlist Management:** Create, edit, and manage custom playlists for personalized listening.
 * **Background Playback:** Music continues playing even when the app is minimized or the device is locked.
 * **Media Controls:** Intuitive controls for play, pause, skip, and seek.
+* **Search Functionality:** Quickly find songs in both local and online libraries.
 * **Intuitive UI/UX:** Clean, responsive, and user-friendly interface for smooth navigation.
 * **Error Handling:** User-friendly messages and safeguards for network or API issues.
-* **Testing:** Fully tested with JUnit and Espresso to ensure reliability and performance.
+* **Testing:** Fully tested Manually & with JUnit to ensure reliability and performance.
 
 ---
 
 ## Future Features
 
-* **Search Functionality:** Quickly find songs in both local and online libraries.
 * **Download Management:** Efficiently monitor and manage downloaded music tracks.
 * **Etc:** Additional enhancements and new features based on user feedback.
 

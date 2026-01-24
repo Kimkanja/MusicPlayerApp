@@ -2,7 +2,8 @@
 package com.kimani.musicplayerapp;
 
 import android.content.Context;
-import android.content.Intent;import android.content.SharedPreferences;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -46,6 +47,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * HomeActivity serves as the main dashboard for the online music experience.
+ * It displays song categories, featured sections, and allows for local playlist management.
+ */
 public class HomeActivity extends AppCompatActivity {
 
     private ActivityHomeBinding binding;
@@ -60,16 +65,16 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Enables edge-to-edge display for a modern look
         EdgeToEdge.enable(this);
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // --- Initialize Playlist UI ---
-        // Since the XML for playlists is in a different layout, we find them by ID
-        // Make sure these IDs exist in your activity_home.xml
+        // --- Initialize UI components ---
         playlistRecyclerView = findViewById(R.id.playlistRecyclerView);
         createPlaylistBtn = findViewById(R.id.createPlaylistBtn);
 
+        // Check for network availability before loading data from Firebase
         if (NetworkUtils.isNetworkAvailable(this)) {
             loadDataFromFirebase();
         } else {
@@ -79,7 +84,7 @@ public class HomeActivity extends AppCompatActivity {
         setupBottomNavigation();
         setupLogoutButton();
 
-        // --- Setup Playlist Functionality ---
+        // --- Initialize Playlist System ---
         if (playlistRecyclerView != null && createPlaylistBtn != null) {
             setupPlaylistRecyclerView();
             loadPlaylists();
@@ -87,16 +92,25 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Fetches categories and sections from Firestore and populates the UI.
+     */
     private void loadDataFromFirebase() {
         setLoading(true);
         getCategories();
+        // Setup different sections on the home screen
         setupSection("section_1", binding.section1MainLayout, binding.section1Title, binding.section1RecyclerView);
         setupSection("section_2", binding.section2MainLayout, binding.section2Title, binding.section2RecyclerView);
         setupSection("section_3", binding.section3MainLayout, binding.section3Title, binding.section3RecyclerView);
         setupMostlyPlayed("mostly_played", binding.mostlyPlayedMainLayout, binding.mostlyPlayedTitle, binding.mostlyPlayedRecyclerView);
+        
+        // Hide loading indicator after a short delay
         new Handler(Looper.getMainLooper()).postDelayed(() -> setLoading(false), 1500);
     }
 
+    /**
+     * Toggles the visibility of the loading indicator and main content.
+     */
     private void setLoading(boolean isLoading) {
         if (isLoading) {
             binding.loadingIndicator.setVisibility(View.VISIBLE);
@@ -107,6 +121,9 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Shows a dialog when there is no internet connection, offering retry or offline mode.
+     */
     private void showNoInternetDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("No Internet Connection")
@@ -126,6 +143,9 @@ public class HomeActivity extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * Configures the BottomNavigationView and its navigation logic.
+     */
     private void setupBottomNavigation() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.bottom_home);
@@ -133,6 +153,7 @@ public class HomeActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.bottom_home) {
+                // Refresh home data if already here
                 if (NetworkUtils.isNetworkAvailable(this)) {
                     loadDataFromFirebase();
                 } else {
@@ -140,6 +161,7 @@ public class HomeActivity extends AppCompatActivity {
                 }
                 return true;
             } else if (itemId == R.id.bottom_playlist) {
+                // Stop online playback before switching to local player
                 if (MyExoplayer.getInstance() != null) {
                     MyExoplayer.getInstance().stop();
                 }
@@ -162,6 +184,9 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Configures the logout button to sign out from Firebase and return to LoginActivity.
+     */
     private void setupLogoutButton() {
         binding.logoutBtn.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
@@ -174,13 +199,16 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        // Update the mini-player view and refresh playlists
         showPlayerView();
-        // Also reload playlists in onResume to reflect any changes made elsewhere
         if (playlistRecyclerView != null) {
             loadPlaylists();
         }
     }
 
+    /**
+     * Updates the mini-player UI if a song is currently playing.
+     */
     public void showPlayerView() {
         binding.playerView.setOnClickListener(v -> {
             startActivity(new Intent(this, OnlinePlayerActivity.class));
@@ -204,6 +232,9 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Fetches music categories from Firestore.
+     */
     void getCategories() {
         FirebaseFirestore.getInstance().collection("category")
                 .get().addOnSuccessListener(queryDocumentSnapshots -> {
@@ -212,12 +243,18 @@ public class HomeActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Sets up the RecyclerView for categories.
+     */
     void setupCategoryRecyclerView(List<CategoryModel> categoryList) {
         categoryAdapter = new CategoryAdapter(categoryList);
         binding.categoryRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         binding.categoryRecyclerView.setAdapter(categoryAdapter);
     }
 
+    /**
+     * Sets up a horizontal song section (like 'Popular' or 'Recommended').
+     */
     public void setupSection(String id, RelativeLayout mainLayout, TextView titleView, RecyclerView recyclerView) {
         FirebaseFirestore.getInstance().collection("sections")
                 .document(id)
@@ -237,6 +274,9 @@ public class HomeActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Sets up the 'Mostly Played' section by querying Firestore for top-played songs.
+     */
     public void setupMostlyPlayed(String id, RelativeLayout mainLayout, TextView titleView, RecyclerView recyclerView) {
         FirebaseFirestore.getInstance().collection("sections")
                 .document(id)
@@ -269,13 +309,16 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     // =====================================================================================
-    // NEW METHODS FOR LOCAL PLAYLIST MANAGEMENT
+    // LOCAL PLAYLIST MANAGEMENT METHODS
     // =====================================================================================
 
+    /**
+     * Initializes the RecyclerView for displaying local playlists.
+     */
     private void setupPlaylistRecyclerView() {
         playlistList = new ArrayList<>();
         playlistAdapter = new PlaylistAdapter(this, playlistList, (playlistName) -> {
-            // Click listener for when a playlist item is tapped
+            // Open PlaylistDetailsActivity when a playlist is clicked
             Intent intent = new Intent(HomeActivity.this, PlaylistDetailsActivity.class);
             intent.putExtra("PLAYLIST_NAME", playlistName);
             startActivity(intent);
@@ -285,18 +328,19 @@ public class HomeActivity extends AppCompatActivity {
         playlistRecyclerView.setAdapter(playlistAdapter);
     }
 
+    /**
+     * Shows a dialog to input a name for a new local playlist.
+     */
     private void showCreatePlaylistDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Create New Playlist");
 
-        // Set up the input
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
         input.setHint("e.g., Chill Vibes");
-        input.setPadding(50, 40, 50, 40); // Add some padding
+        input.setPadding(50, 40, 50, 40);
         builder.setView(input);
 
-        // Set up the buttons
         builder.setPositiveButton("Create", (dialog, which) -> {
             String playlistName = input.getText().toString().trim();
             if (!playlistName.isEmpty()) {
@@ -309,40 +353,41 @@ public class HomeActivity extends AppCompatActivity {
         builder.show();
     }
 
+    /**
+     * Persists a new playlist name into SharedPreferences.
+     */
     private void savePlaylist(String name) {
         SharedPreferences prefs = getSharedPreferences("Playlists", MODE_PRIVATE);
-        // Check if playlist already exists
         if (prefs.contains(name)) {
             Toast.makeText(this, "Playlist with this name already exists", Toast.LENGTH_SHORT).show();
             return;
         }
         SharedPreferences.Editor editor = prefs.edit();
-        // We store an empty set initially. Songs will be added later.
+        // Initialize with an empty set of song paths/IDs
         editor.putStringSet(name, new HashSet<>());
         editor.apply();
 
         Toast.makeText(this, "Playlist '" + name + "' created", Toast.LENGTH_SHORT).show();
-        loadPlaylists(); // Refresh the list to show the new playlist
+        loadPlaylists(); // Refresh list
     }
 
+    /**
+     * Loads all playlists stored in SharedPreferences and updates the adapter.
+     */
     private void loadPlaylists() {
         SharedPreferences prefs = getSharedPreferences("Playlists", MODE_PRIVATE);
         Map<String, ?> allEntries = prefs.getAll();
 
         playlistList.clear();
         for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
-            // *** FIX: Use the correct constructor by providing the name and a list of song IDs ***
             List<String> songIds = new ArrayList<>();
-            // The value from SharedPreferences for a stringSet is a Set. We must cast it.
             if (entry.getValue() instanceof Set) {
-                // We can safely cast and add all song IDs to our list.
                 songIds.addAll((Set<String>) entry.getValue());
             }
-            // Now call the constructor with both arguments.
             playlistList.add(new PlaylistModel(entry.getKey(), songIds));
         }
 
-        // Sort the list alphabetically
+        // Sort playlists alphabetically
         Collections.sort(playlistList, (p1, p2) -> p1.getName().compareTo(p2.getName()));
 
         if (playlistAdapter != null) {
@@ -352,17 +397,15 @@ public class HomeActivity extends AppCompatActivity {
 }
 
 
-// =====================================================================================
-// NEW PLAYLIST ADAPTER CLASS (You can put this in its own file or as an inner class)
-// =====================================================================================
-
+/**
+ * Adapter for displaying local playlists in a RecyclerView.
+ */
 class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.PlaylistViewHolder> {
 
     private final Context context;
     private final List<PlaylistModel> playlistList;
     private final OnPlaylistClickListener listener;
 
-    // Interface for click events
     public interface OnPlaylistClickListener {
         void onPlaylistClick(String playlistName);
     }
@@ -376,8 +419,6 @@ class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.PlaylistViewH
     @NonNull
     @Override
     public PlaylistViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // You must create a layout file named 'item_playlist.xml' for this to work.
-        // I have provided the XML for it in previous responses.
         View view = LayoutInflater.from(context).inflate(R.layout.item_playlist, parent, false);
         return new PlaylistViewHolder(view);
     }
@@ -387,10 +428,9 @@ class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.PlaylistViewH
         PlaylistModel playlist = playlistList.get(position);
         holder.playlistName.setText(playlist.getName());
 
-        // Set the icon for the playlist
-        holder.playlistIcon.setImageResource(R.drawable.icon_playlist); // Make sure you have 'ic_playlist' in your drawables
+        // Set the static icon for playlists
+        holder.playlistIcon.setImageResource(R.drawable.icon_playlist);
 
-        // Handle the click event
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onPlaylistClick(playlist.getName());

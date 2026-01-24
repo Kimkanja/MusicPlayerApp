@@ -1,10 +1,11 @@
 package com.kimani.musicplayerapp;
 
-import android.database.Cursor;import android.net.Uri;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
-import android.content.Intent;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -23,51 +24,61 @@ import com.kimani.musicplayerapp.models.TrackInfo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class SearchActivity extends AppCompatActivity implements SongAdapter.OnItemClickListener {
+/**
+ * SearchActivity provides functionality to search for songs both locally on the device
+ * and online via Firebase Firestore. It updates the UI in real-time as the user types.
+ */
+public class SearchActivity extends AppCompatActivity implements SongAdapter.OnItemClickListener, SongAdapter.OnItemLongClickListener {
 
     private RecyclerView recyclerView;
     private SongAdapter adapter;
-    private List<TrackInfo> displayList = new ArrayList<>(); // List shown in UI
-    private List<Song> localSongs = new ArrayList<>(); // All local songs cached
+    private List<TrackInfo> displayList = new ArrayList<>(); // List used to update the UI
+    private List<Song> localSongs = new ArrayList<>();       // Cache of all local songs
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Enable edge-to-edge for a modern look
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_search);
 
+        // Adjust padding to account for system bars (status bar, navigation bar)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        // 1. Load Local Songs into memory for fast searching
+        // Pre-fetch local songs for faster filtering during search
         localSongs = getLocalSongs();
 
+        // Initialize RecyclerView
         recyclerView = findViewById(R.id.search_results_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // 2. Setup Adapter
-        adapter = new SongAdapter(displayList, this);
+        // Setup adapter with an empty list initially
+        adapter = new SongAdapter(displayList, this, this);
         recyclerView.setAdapter(adapter);
 
+        // Configure the SearchView
         SearchView searchView = findViewById(R.id.search_view);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                // Trigger search when the keyboard search button is pressed
                 performSearch(query);
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                // Trigger real-time search as the user types
                 if (newText.length() > 0) {
                     performSearch(newText);
                 } else {
+                    // Clear results if the search field is empty
                     displayList.clear();
                     adapter.notifyDataSetChanged();
                     recyclerView.setVisibility(View.GONE);
@@ -77,24 +88,31 @@ public class SearchActivity extends AppCompatActivity implements SongAdapter.OnI
         });
     }
 
+    /**
+     * Executes the search logic. Filters local songs first, then queries Firestore for online songs.
+     * @param query The search string entered by the user.
+     */
     private void performSearch(String query) {
         displayList.clear();
         String lowerQuery = query.toLowerCase();
 
-        // 3. Search Local Songs first (Instant)
+        // --- Phase 1: Search Local Songs ---
         for (Song s : localSongs) {
-            if (s.getTitle().toLowerCase().contains(lowerQuery) || s.getArtist().toLowerCase().contains(lowerQuery)) {
+            // Check if title or artist matches the query
+            if (s.getTitle().toLowerCase().contains(lowerQuery) ||
+                    s.getArtist().toLowerCase().contains(lowerQuery)) {
                 displayList.add(new TrackInfo(
                         String.valueOf(s.getId()),
                         s.getTitle(),
                         s.getArtist(),
                         s.getPath(),
-                        "" // No cover URL for local
+                        "" // Thumbnail can be added here if available
                 ));
             }
         }
 
-        // 4. Search Firebase (Online)
+        // --- Phase 2: Search Online (Firebase Firestore) ---
+        // Uses a range query to find titles starting with the query string
         db.collection("songs")
                 .whereGreaterThanOrEqualTo("title", query)
                 .whereLessThanOrEqualTo("title", query + "\uf8ff")
@@ -103,11 +121,20 @@ public class SearchActivity extends AppCompatActivity implements SongAdapter.OnI
                     if (task.isSuccessful() && task.getResult() != null) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             TrackInfo track = document.toObject(TrackInfo.class);
-                            // Avoid duplicates if local and online match
-                            displayList.add(track);
+                            
+                            // Prevent duplicates if a local song has the same ID as an online one
+                            boolean isDuplicate = false;
+                            for (TrackInfo existing : displayList) {
+                                if (existing.getId().equals(track.getId())) {
+                                    isDuplicate = true;
+                                    break;
+                                }
+                            }
+                            if (!isDuplicate) displayList.add(track);
                         }
                     }
 
+                    // Update UI if results were found
                     if (!displayList.isEmpty()) {
                         recyclerView.setVisibility(View.VISIBLE);
                         adapter.notifyDataSetChanged();
@@ -115,7 +142,10 @@ public class SearchActivity extends AppCompatActivity implements SongAdapter.OnI
                 });
     }
 
-    // Helper to fetch local files
+    /**
+     * Queries MediaStore for all audio files on the device.
+     * @return List of Song objects.
+     */
     private List<Song> getLocalSongs() {
         List<Song> songs = new ArrayList<>();
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -137,42 +167,44 @@ public class SearchActivity extends AppCompatActivity implements SongAdapter.OnI
         return songs;
     }
 
+    /**
+     * Handles clicks on search results. Converts TrackInfo to Song and launches PlayerActivity.
+     */
     @Override
     public void onItemClick(TrackInfo track) {
-        // Find if this is a local song or online
-        ArrayList<Song> playList = new ArrayList<>();
-        int position = 0;
+        ArrayList<Song> singleSongList = new ArrayList<>();
 
-        // Check if track matches a local song
-        boolean isLocal = false;
-        for (int i = 0; i < localSongs.size(); i++) {
-            if (String.valueOf(localSongs.get(i).getId()).equals(track.getId())) {
-                isLocal = true;
-                position = i;
-                break;
-            }
+        // Convert the generic TrackInfo (which could be local or online) into a Song object
+        long id;
+        try {
+            // Attempt to parse the ID as a long (standard for local MediaStore)
+            id = Long.parseLong(track.getId());
+        } catch (Exception e) {
+            // If it's a Firestore String ID, use its hashCode as a numeric identifier
+            id = track.hashCode();
         }
 
+        Song selectedSong = new Song(
+                id,
+                track.getTitle(),
+                track.getSubtitle(), // Subtitle stores the artist
+                track.getUrl(),      // Url stores the file path or web link
+                0                   // Placeholder albumId
+        );
+
+        singleSongList.add(selectedSong);
+
+        // Launch PlayerActivity with the single selected song
         Intent intent = new Intent(this, PlayerActivity.class);
-
-        if (isLocal) {
-            // It's a local file, pass the full local list so user can skip next/prev
-            intent.putParcelableArrayListExtra("songList", new ArrayList<>(localSongs));
-            intent.putExtra("position", position);
-        } else {
-            // It's an online file, create a temporary Song object for PlayerActivity
-            Song onlineSong = new Song(
-                    Long.parseLong(track.getId().replaceAll("[\\D]", "0").substring(0, Math.min(track.getId().length(), 8))),
-                    track.getTitle(),
-                    track.getSubtitle(),
-                    track.getUrl(),
-                    0);
-
-            playList.add(onlineSong);
-            intent.putParcelableArrayListExtra("songList", playList);
-            intent.putExtra("position", 0);
-        }
-
+        intent.putParcelableArrayListExtra("songList", singleSongList);
+        intent.putExtra("position", 0);
         startActivity(intent);
+
+        Toast.makeText(this, "Playing: " + track.getTitle(), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onItemLongClick(TrackInfo track) {
+        // Reserved for future use (e.g., show details or add to playlist)
     }
 }

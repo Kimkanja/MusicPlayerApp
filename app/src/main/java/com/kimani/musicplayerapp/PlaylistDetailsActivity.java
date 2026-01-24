@@ -23,7 +23,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-// Implements the click listener interface from MusicAdapter
+/**
+ * Activity that displays the songs within a specific playlist.
+ * It allows users to view songs, add new songs via a picker, and start playback.
+ */
 public class PlaylistDetailsActivity extends AppCompatActivity implements MusicAdapter.OnSongClickListener {
 
     private RecyclerView playlistSongsRecyclerView;
@@ -35,6 +38,9 @@ public class PlaylistDetailsActivity extends AppCompatActivity implements MusicA
     private ArrayList<AudioModel> songsInPlaylist;
     private MusicAdapter musicAdapter;
 
+    /**
+     * Launcher for SongPickerActivity. Reloads the song list if songs were added.
+     */
     private final ActivityResultLauncher<Intent> songPickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -50,6 +56,7 @@ public class PlaylistDetailsActivity extends AppCompatActivity implements MusicA
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playlist_details);
 
+        // Get the playlist name passed from the previous activity
         playlistName = getIntent().getStringExtra("PLAYLIST_NAME");
 
         playlistNameTitle = findViewById(R.id.playlistNameTitle);
@@ -62,8 +69,9 @@ public class PlaylistDetailsActivity extends AppCompatActivity implements MusicA
         }
 
         setupRecyclerView();
-        loadSongsForPlaylist(); // Initial load
+        loadSongsForPlaylist(); // Initial load of songs from SharedPreferences
 
+        // FAB to open the song picker activity
         addSongsFab.setOnClickListener(v -> {
             Intent intent = new Intent(this, SongPickerActivity.class);
             intent.putExtra("PLAYLIST_NAME", playlistName);
@@ -71,23 +79,31 @@ public class PlaylistDetailsActivity extends AppCompatActivity implements MusicA
         });
     }
 
+    /**
+     * Initializes the RecyclerView and its adapter.
+     */
     private void setupRecyclerView() {
         songsInPlaylist = new ArrayList<>();
-        // Pass 'this' as the click listener
+        // Pass 'this' as the click listener to handle song selection
         musicAdapter = new MusicAdapter(this, songsInPlaylist, this);
         playlistSongsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         playlistSongsRecyclerView.setAdapter(musicAdapter);
     }
 
+    /**
+     * Loads songs associated with this playlist from SharedPreferences and fetches their metadata from MediaStore.
+     */
     private void loadSongsForPlaylist() {
         songsInPlaylist.clear();
 
+        // Retrieve song paths stored for this playlist
         SharedPreferences sharedPreferences = getSharedPreferences("Playlists", MODE_PRIVATE);
         Set<String> songPaths = sharedPreferences.getStringSet(playlistName, new HashSet<>());
 
         Log.d("PlaylistDetails", "Loading " + songPaths.size() + " songs for playlist: " + playlistName);
 
         if (!songPaths.isEmpty()) {
+            // Build the SQL selection string and arguments for MediaStore query
             String[] selectionArgs = songPaths.toArray(new String[0]);
             StringBuilder selection = new StringBuilder();
             for (int i = 0; i < songPaths.size(); i++) {
@@ -104,6 +120,7 @@ public class PlaylistDetailsActivity extends AppCompatActivity implements MusicA
                     MediaStore.Audio.Media.ARTIST,
             };
 
+            // Query MediaStore for metadata of the files in the playlist
             Cursor cursor = getContentResolver().query(
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                     projection,
@@ -125,6 +142,7 @@ public class PlaylistDetailsActivity extends AppCompatActivity implements MusicA
             }
         }
 
+        // Toggle visibility between RecyclerView and the empty state view
         if (songsInPlaylist.isEmpty()) {
             playlistSongsRecyclerView.setVisibility(View.GONE);
             emptyPlaylistView.setVisibility(View.VISIBLE);
@@ -138,32 +156,31 @@ public class PlaylistDetailsActivity extends AppCompatActivity implements MusicA
         Log.d("PlaylistDetails", "Adapter notified. Total songs in list: " + songsInPlaylist.size());
     }
 
+    /**
+     * Handles clicks on individual songs in the list.
+     * Launches PlayerActivity to start playback of the selected song and the rest of the playlist.
+     */
     @Override
     public void onSongClick(int position) {
-        // Set the current index for highlighting in the adapter
+        // Track current index globally (if needed by other parts of the app)
         MyMediaPlayer.currentIndex = position;
 
-        // Create an Intent to start PlayerActivity
         Intent intent = new Intent(this, PlayerActivity.class);
 
-        // --- FIX: Add a specific action to the intent ---
-        // This tells PlayerActivity to start a new playback session.
+        // Signal to PlayerActivity that playback is starting from a playlist context
         intent.setAction("ACTION_START_FROM_PLAYLIST");
-        // --- End of Fix ---
 
-        // Put the list of songs and the clicked position into the intent.
+        // Pass the playlist and the selected starting position
         intent.putParcelableArrayListExtra("songList", songsInPlaylist);
         intent.putExtra("position", position);
 
         startActivity(intent);
     }
 
-
-
-
     @Override
     protected void onResume() {
         super.onResume();
+        // Ensure UI stays in sync if returning from another activity
         if (musicAdapter != null) {
             musicAdapter.notifyDataSetChanged();
         }

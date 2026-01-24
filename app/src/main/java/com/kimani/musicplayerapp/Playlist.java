@@ -1,10 +1,25 @@
 package com.kimani.musicplayerapp;
 
-// Playlist.java
+/**
+ * Data model representing a music playlist.
+ * Stores basic information about a playlist, such as its name.
+ */
 public class Playlist {
     private String name;
-    // You could add more, like an image path or song count
 
-    public Playlist(String name) { this.name = name; }
-    public String getName() { return name; }
+    /**
+     * Constructs a new Playlist with a specific name.
+     * @param name The name of the playlist.
+     */
+    public Playlist(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Gets the name of the playlist.
+     * @return The playlist name.
+     */
+    public String getName() {
+        return name;
+    }
 }

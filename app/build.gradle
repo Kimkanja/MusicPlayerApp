@@ -65,4 +65,5 @@ dependencies {
     implementation 'androidx.palette:palette:1.0.0'
     implementation 'com.github.alexei-frolo:WaveformSeekBar:1.1'
     implementation 'jp.wasabeef:glide-transformations:4.3.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
 }

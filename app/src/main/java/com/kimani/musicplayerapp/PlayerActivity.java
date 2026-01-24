@@ -22,16 +22,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * PlayerActivity is the main UI for controlling music playback.
+ * It connects to a {@link PlaybackService} using a {@link MediaController} to manage playback state,
+ * update the UI (seekbar, title, artist), and handle user interactions like play/pause, skip, shuffle, and repeat.
+ */
 public class PlayerActivity extends AppCompatActivity {
 
     private ActivityPlayerBinding binding;
     private ListenableFuture<MediaController> mediaControllerFuture;
     private Handler handler;
-    // --- FIX: This list is now generic to hold metadata, not a specific type ---
+    
+    // List used to populate the UI. It can hold data derived from different song models.
     private List<AudioModel> uiSongList = new ArrayList<>();
     private boolean isShuffle = false;
     private boolean isRepeat = false;
 
+    /**
+     * Periodic task to update the seekbar and elapsed time text while music is playing.
+     */
     private final Runnable updateRunnable = new Runnable() {
         @Override
         public void run() {
@@ -42,14 +51,16 @@ public class PlayerActivity extends AppCompatActivity {
                         long currentPosition = mediaController.getCurrentPosition();
                         long duration = mediaController.getDuration();
                         if (duration > 0) {
+                            // Update seekbar percentage and time displays
                             binding.waveformSeekBar.setProgressInPercentage(((float) currentPosition / duration));
                             binding.elapsedTimeText.setText(formatTime((int) (currentPosition / 1000)));
                             binding.songDurationtext.setText(formatTime((int) (duration / 1000)));
                         }
+                        // Re-schedule the update in 1 second
                         handler.postDelayed(this, 1000);
                     }
                 } catch (Exception e) {
-                    // This can happen if the controller is released, so it's safe to ignore here
+                    // Ignore exceptions if controller is released
                 }
             }
         }
@@ -64,20 +75,19 @@ public class PlayerActivity extends AppCompatActivity {
 
         handler = new Handler(Looper.getMainLooper());
 
-        // --- FIX: Handle both Song and AudioModel lists ---
-        // This logic converts whatever list we receive into a consistent `uiSongList` for the UI.
+        // Handle incoming song lists which might be of different types depending on the source activity
         ArrayList<Song> receivedSongList = getIntent().getParcelableArrayListExtra("songList");
         ArrayList<AudioModel> receivedAudioModelList = getIntent().getParcelableArrayListExtra("songList");
 
         if (receivedSongList != null && !receivedSongList.isEmpty() && receivedSongList.get(0) instanceof Song) {
+            // Mapping Song objects (from MainActivity) to AudioModel for UI consistency
             for (Song song : receivedSongList) {
-                // Convert Song to AudioModel for UI consistency
                 uiSongList.add(new AudioModel(song.getData(), song.getTitle(), "0", song.getArtist()));
             }
         } else if (receivedAudioModelList != null && !receivedAudioModelList.isEmpty()) {
+            // Directly using AudioModel objects (e.g., from PlaylistDetailsActivity)
             uiSongList.addAll(receivedAudioModelList);
         }
-        // --- End of Fix ---
 
         if (uiSongList.isEmpty()) {
             Toast.makeText(this, "No Songs Found!", Toast.LENGTH_SHORT).show();
@@ -85,6 +95,7 @@ public class PlayerActivity extends AppCompatActivity {
             return;
         }
 
+        // Initialize waveform UI component with dummy data
         binding.waveformSeekBar.setWaveform(createWaveform(), true);
         setupControls();
     }
@@ -93,22 +104,22 @@ public class PlayerActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        // --- FIX: Pass the correct list type to the service ---
+        // Start PlaybackService and pass the song list and starting position
         Intent serviceIntent = new Intent(this, PlaybackService.class);
         ArrayList<Song> songListFromMain = getIntent().getParcelableArrayListExtra("songList");
 
-        // We check if the intent came from MainActivity (contains `Song` objects)
+        // Set action based on data source to help the service handle the intent properly
         if (songListFromMain != null && !songListFromMain.isEmpty() && songListFromMain.get(0) instanceof Song) {
             serviceIntent.setAction("ACTION_START_FROM_MAIN");
             serviceIntent.putParcelableArrayListExtra("songList", songListFromMain);
-        } else { // Otherwise, assume it's from PlaylistDetailsActivity (contains `AudioModel` objects)
+        } else {
             serviceIntent.setAction("ACTION_START_FROM_PLAYLIST");
             serviceIntent.putParcelableArrayListExtra("songList", getIntent().getParcelableArrayListExtra("songList"));
         }
         serviceIntent.putExtra("position", getIntent().getIntExtra("position", 0));
         startService(serviceIntent);
-        // --- End of Fix ---
 
+        // Bind to the MediaSession in PlaybackService
         SessionToken sessionToken = new SessionToken(this, new ComponentName(this, PlaybackService.class));
         mediaControllerFuture = new MediaController.Builder(this, sessionToken).buildAsync();
 
@@ -116,7 +127,7 @@ public class PlayerActivity extends AppCompatActivity {
             try {
                 MediaController mediaController = mediaControllerFuture.get();
                 mediaController.addListener(playerListener);
-                updateUIForCurrentSong(mediaController); // Update UI as soon as controller is ready
+                updateUIForCurrentSong(mediaController); // Initial UI update
                 handler.post(updateRunnable);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -124,6 +135,9 @@ public class PlayerActivity extends AppCompatActivity {
         }, MoreExecutors.directExecutor());
     }
 
+    /**
+     * Listener for player events like song transitions and play/pause state changes.
+     */
     private final Player.Listener playerListener = new Player.Listener() {
         @Override
         public void onMediaItemTransition(@androidx.annotation.Nullable MediaItem mediaItem, int reason) {
@@ -148,6 +162,9 @@ public class PlayerActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * Set up click listeners for all playback control buttons.
+     */
     private void setupControls() {
         binding.playpauseBtn.setOnClickListener(v -> {
             if (mediaControllerFuture == null || !mediaControllerFuture.isDone()) return;
@@ -180,6 +197,9 @@ public class PlayerActivity extends AppCompatActivity {
         binding.backBtn.setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
     }
 
+    /**
+     * Toggles the repeat mode between REPEAT_MODE_ONE and REPEAT_MODE_OFF.
+     */
     private void toggleRepeat() {
         if (mediaControllerFuture == null || !mediaControllerFuture.isDone()) return;
         try {
@@ -191,6 +211,9 @@ public class PlayerActivity extends AppCompatActivity {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
+    /**
+     * Toggles shuffle mode in the media controller.
+     */
     private void toggleShuffle() {
         if (mediaControllerFuture == null || !mediaControllerFuture.isDone()) return;
         try {
@@ -202,6 +225,10 @@ public class PlayerActivity extends AppCompatActivity {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
+    /**
+     * Updates the UI elements (text views, images) with information about the currently playing song.
+     * @param controller The MediaController instance.
+     */
     private void updateUIForCurrentSong(MediaController controller) {
         if (controller == null || controller.getMediaItemCount() == 0) {
             return;
@@ -214,11 +241,12 @@ public class PlayerActivity extends AppCompatActivity {
                 AudioModel song = uiSongList.get(currentIndex);
 
                 binding.songTitleText.setText(song.getTitle());
-                binding.songTitleText.setSelected(true);
+                binding.songTitleText.setSelected(true); // Enables marquee effect if text overflows
                 binding.songArtistText.setText(song.getArtist());
                 binding.songArtistText.setSelected(true);
                 setTitle(song.getTitle());
 
+                // Static placeholders for artwork; could be replaced with dynamic loading
                 binding.albumArtPlayerImage.setImageResource(R.drawable.ic_music_note_24);
                 binding.albumArtBg.setImageResource(R.drawable.gradient_bg);
 
@@ -229,10 +257,16 @@ public class PlayerActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Converts seconds into a mm:ss format string.
+     */
     private String formatTime(int seconds) {
         return String.format("%02d:%02d", seconds / 60, seconds % 60);
     }
 
+    /**
+     * Generates a random set of values to simulate a waveform for the seekbar.
+     */
     private int[] createWaveform() {
         Random random = new Random(System.currentTimeMillis());
         int[] values = new int[50];
@@ -242,6 +276,9 @@ public class PlayerActivity extends AppCompatActivity {
         return values;
     }
 
+    /**
+     * Updates the play/pause button icon based on whether the player is currently playing.
+     */
     private void updatePlayPauseButtonIcon() {
         if (mediaControllerFuture == null || !mediaControllerFuture.isDone()) return;
         try {
@@ -262,6 +299,7 @@ public class PlayerActivity extends AppCompatActivity {
                     // Ignore
                 }
             }, MoreExecutors.directExecutor());
+            // Release the MediaController when activity is stopped
             MediaController.releaseFuture(mediaControllerFuture);
         }
     }
@@ -270,6 +308,7 @@ public class PlayerActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         if (handler != null) {
+            // Stop UI updates to prevent memory leaks
             handler.removeCallbacks(updateRunnable);
         }
     }

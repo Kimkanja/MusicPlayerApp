@@ -18,21 +18,28 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewholder
 
     private final List<TrackInfo> songs;
     private final OnItemClickListener listener;
+    private final OnItemLongClickListener longClickListener;
 
-    // Interface to handle clicks back in SearchActivity
+    // Interface for standard click (Play)
     public interface OnItemClickListener {
         void onItemClick(TrackInfo track);
     }
 
-    public SongAdapter(List<TrackInfo> songs, OnItemClickListener listener) {
+    // Interface for long click (Options Menu)
+    public interface OnItemLongClickListener {
+        void onItemLongClick(TrackInfo track);
+    }
+
+    // Updated Constructor to require both listeners
+    public SongAdapter(List<TrackInfo> songs, OnItemClickListener listener, OnItemLongClickListener longClickListener) {
         this.songs = songs;
         this.listener = listener;
+        this.longClickListener = longClickListener;
     }
 
     @NonNull
     @Override
     public SongViewholder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Using ViewBinding as seen in your previous code
         ItemSongBinding binding = ItemSongBinding.inflate(
                 LayoutInflater.from(parent.getContext()),
                 parent,
@@ -45,17 +52,14 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewholder
     public void onBindViewHolder(@NonNull SongViewholder holder, int position) {
         TrackInfo track = songs.get(position);
 
-        // Set Text Data
         holder.binding.textTitle.setText(track.getTitle());
         holder.binding.textArtist.setText(track.getSubtitle());
 
-        // Animation
         holder.itemView.startAnimation(
                 AnimationUtils.loadAnimation(holder.itemView.getContext(),
                         R.anim.scroll_recyclerview)
         );
 
-        // Load Cover Art from URL using Glide
         Glide.with(holder.binding.getRoot().getContext())
                 .load(track.getCoverUrl())
                 .circleCrop()
@@ -63,11 +67,20 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewholder
                 .error(R.drawable.ic_music_note_24)
                 .into(holder.binding.imageAlbumArt);
 
-        // Click Listener for Playback
+        // Standard Click
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onItemClick(track);
             }
+        });
+
+        // Long Click for BottomSheet logic
+        holder.itemView.setOnLongClickListener(v -> {
+            if (longClickListener != null) {
+                longClickListener.onItemLongClick(track);
+                return true;
+            }
+            return false;
         });
     }
 
@@ -78,10 +91,25 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewholder
 
     public static class SongViewholder extends RecyclerView.ViewHolder {
         final ItemSongBinding binding;
-
         public SongViewholder(ItemSongBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
+        }
+    }
+
+    // Add these methods inside SongAdapter.java
+
+    public void updateData(List<TrackInfo> newSongs) {
+        this.songs.clear();
+        this.songs.addAll(newSongs);
+        notifyDataSetChanged();
+    }
+
+    public void removeSong(int position) {
+        if (position >= 0 && position < songs.size()) {
+            songs.remove(position);
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, songs.size());
         }
     }
 }

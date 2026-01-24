@@ -1,19 +1,10 @@
 package com.kimani.musicplayerapp;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.InputType;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,11 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
-// Import the generated ViewBinding class for your dialog
 import com.kimani.musicplayerapp.databinding.DialogCreatePlaylistBinding;
 import com.kimani.musicplayerapp.models.PlaylistModel;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,9 +23,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * OnlineActivity handles the display and management of user-created playlists.
+ * It allows users to view existing playlists, create new ones, and navigate to playlist details.
+ * Playlists are persisted using SharedPreferences.
+ */
 public class OnlineActivity extends AppCompatActivity {
 
-    // --- Playlist Components ---
     private RecyclerView playlistRecyclerView;
     private MaterialButton createPlaylistBtn;
     private PlaylistAdapter playlistAdapter;
@@ -47,28 +40,36 @@ public class OnlineActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_online);
 
-        // --- Initialize Playlist UI from activity_online.xml ---
+        // Initialize UI components
         playlistRecyclerView = findViewById(R.id.playlistRecyclerView);
         createPlaylistBtn = findViewById(R.id.createPlaylistBtn);
 
-        // --- Setup Playlist Functionality ---
+        // Setup the Horizontal RecyclerView for playlists
         setupPlaylistRecyclerView();
+        
+        // Initial load of playlists from storage
         loadPlaylists();
-        createPlaylistBtn.setOnClickListener(v -> showCreatePlaylistDialog());
 
+        // Button listener to trigger the 'Create Playlist' dialog
+        createPlaylistBtn.setOnClickListener(v -> showCreatePlaylistDialog());
+        
+        // Setup bottom navigation menu
         setupBottomNavigation();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Reload playlists every time the screen is shown to reflect any changes
+        // Refresh the playlist list whenever the activity becomes active again
         loadPlaylists();
     }
 
+    /**
+     * Configures the BottomNavigationView and its navigation logic.
+     */
     private void setupBottomNavigation() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        bottomNavigationView.setSelectedItemId(R.id.bottom_online); // Set 'Online' as selected
+        bottomNavigationView.setSelectedItemId(R.id.bottom_online);
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
@@ -83,7 +84,7 @@ public class OnlineActivity extends AppCompatActivity {
                 finish();
                 return true;
             } else if (itemId == R.id.bottom_online) {
-                // Already here, do nothing
+                // Already in OnlineActivity
                 return true;
             } else if (itemId == R.id.bottom_profile) {
                 startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
@@ -95,32 +96,33 @@ public class OnlineActivity extends AppCompatActivity {
         });
     }
 
-    // =====================================================================================
-    //  PLAYLIST MANAGEMENT METHODS (Copied from HomeActivity)
-    // =====================================================================================
-
+    /**
+     * Initializes the RecyclerView with a horizontal layout and the PlaylistAdapter.
+     */
     private void setupPlaylistRecyclerView() {
         playlistList = new ArrayList<>();
         playlistAdapter = new PlaylistAdapter(this, playlistList, playlistName -> {
-            // Click listener for when a playlist item is tapped
+            // When a playlist is clicked, navigate to its details screen
             Intent intent = new Intent(OnlineActivity.this, PlaylistDetailsActivity.class);
             intent.putExtra("PLAYLIST_NAME", playlistName);
             startActivity(intent);
         });
 
+        // Horizontal scrolling for a modern feel
         playlistRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         playlistRecyclerView.setAdapter(playlistAdapter);
     }
 
+    /**
+     * Shows a Material Alert Dialog to input a new playlist name.
+     */
     private void showCreatePlaylistDialog() {
-        // 1. Inflate your custom layout using ViewBinding
+        // Use View Binding for the custom dialog layout
         DialogCreatePlaylistBinding binding = DialogCreatePlaylistBinding.inflate(getLayoutInflater());
 
-        // 2. Create a MaterialAlertDialogBuilder
         AlertDialog dialog = new MaterialAlertDialogBuilder(this)
-                .setView(binding.getRoot()) // Set the custom view from your binding
+                .setView(binding.getRoot())
                 .setPositiveButton("Create", (d, which) -> {
-                    // Get the text from the input field in your custom layout
                     String playlistName = binding.inputPlaylistName.getText().toString().trim();
                     if (!playlistName.isEmpty()) {
                         savePlaylist(playlistName);
@@ -131,44 +133,49 @@ public class OnlineActivity extends AppCompatActivity {
                 .setNegativeButton("Cancel", (d, which) -> d.dismiss())
                 .create();
 
-        // 3. Customize the dialog's appearance and show it
-        // Use the same background as your items for a consistent look
+        // Apply a custom background to the dialog window for the 'glow' effect
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawableResource(R.drawable.glow_effect_item);
         }
         dialog.show();
     }
 
-
+    /**
+     * Saves a new playlist name into SharedPreferences as a key with an empty HashSet.
+     * @param name The name of the new playlist.
+     */
     private void savePlaylist(String name) {
         SharedPreferences prefs = getSharedPreferences("Playlists", MODE_PRIVATE);
         if (prefs.contains(name)) {
             Toast.makeText(this, "A playlist with this name already exists", Toast.LENGTH_SHORT).show();
             return;
         }
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putStringSet(name, new HashSet<>());
-        editor.apply();
-
-        Toast.makeText(this, "Playlist '" + name + "' created", Toast.LENGTH_SHORT).show();
-        loadPlaylists(); // Refresh the list
+        // Playlists are stored as StringSets containing song IDs
+        prefs.edit().putStringSet(name, new HashSet<>()).apply();
+        loadPlaylists(); // Refresh the UI
     }
 
+    /**
+     * Loads all playlists from SharedPreferences and updates the adapter.
+     */
     private void loadPlaylists() {
         SharedPreferences prefs = getSharedPreferences("Playlists", MODE_PRIVATE);
         Map<String, ?> allEntries = prefs.getAll();
 
         playlistList.clear();
         for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
-            List<String> songIds = new ArrayList<>();
+            // We only care about entries that are Sets (our playlists)
             if (entry.getValue() instanceof Set) {
-                songIds.addAll((Set<String>) entry.getValue());
+                @SuppressWarnings("unchecked")
+                Set<String> idSet = (Set<String>) entry.getValue();
+                List<String> songIds = new ArrayList<>(idSet);
+                playlistList.add(new PlaylistModel(entry.getKey(), songIds));
             }
-            playlistList.add(new PlaylistModel(entry.getKey(), songIds));
         }
 
-        Collections.sort(playlistList, (p1, p2) -> p1.getName().compareTo(p2.getName()));
-
+        // Sort playlists alphabetically by name
+        Collections.sort(playlistList, (p1, p2) -> p1.getName().compareToIgnoreCase(p2.getName()));
+        
         if (playlistAdapter != null) {
             playlistAdapter.notifyDataSetChanged();
         }

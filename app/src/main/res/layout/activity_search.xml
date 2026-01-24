@@ -58,7 +58,7 @@
                 android:layout_height="match_parent"
                 android:theme="@style/ThemeOverlay.AppCompat.Light"
                 app:iconifiedByDefault="false"
-                app:queryHint="Search for artists, songs, albums..." />
+                app:queryHint="Search Online and Locally" />
 
         </androidx.cardview.widget.CardView>
 

@@ -1,5 +1,7 @@
 # MusicPlayerApp
 
+![SlideGuard Dashboard](screenshots/icon.png)
+
 **MusicPlayerApp** is a modern and fully-featured Android music player application developed using **Java** and configured with **Gradle (Groovy scripts)**. The app offers a seamless music experience, supporting **online streaming**, **offline playback**, **playlist management**, and **downloads**, enabling users to enjoy their favorite music anytime, anywhere.
 
 ---

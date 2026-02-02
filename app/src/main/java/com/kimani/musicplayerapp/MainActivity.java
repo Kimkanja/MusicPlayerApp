@@ -182,12 +182,24 @@ public class MainActivity extends AppCompatActivity implements SongAdapter.OnIte
             // Convert Song objects to TrackInfo for the Adapter
             List<TrackInfo> trackList = new ArrayList<>();
             for (Song s : songList) {
-                trackList.add(new TrackInfo(String.valueOf(s.getId()), s.getTitle(), s.getArtist(), s.getPath(), ""));
+                trackList.add(
+                        new TrackInfo(
+                                String.valueOf(s.getId()),
+                                s.getTitle(),
+                                s.getArtist(),
+                                s.getPath(),
+                                ContentUris.withAppendedId(
+                                        Uri.parse("content://media/external/audio/albumart"),
+                                        s.getAlbumId()
+                                ).toString()
+                        )
+                );
             }
             adapter = new SongAdapter(trackList, this, this);
             binding.recyclerViewSongs.setAdapter(adapter);
             binding.recyclerViewSongs.setVisibility(View.VISIBLE);
             binding.textViewNoSongs.setVisibility(View.GONE);
+            Toast.makeText(this, songList.size() + " songs loaded", Toast.LENGTH_SHORT).show();
         }
     }
 

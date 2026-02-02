@@ -1,10 +1,16 @@
 package com.kimani.musicplayerapp;
 
 import android.content.ComponentName;
+import android.content.ContentUris;
 import android.content.Intent;
+import android.graphics.RenderEffect;
+import android.graphics.Shader;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -14,6 +20,8 @@ import androidx.media3.common.Player;
 import androidx.media3.session.MediaController;
 import androidx.media3.session.SessionToken;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.signature.ObjectKey;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.kimani.musicplayerapp.databinding.ActivityPlayerBinding;
@@ -82,7 +90,20 @@ public class PlayerActivity extends AppCompatActivity {
         if (receivedSongList != null && !receivedSongList.isEmpty() && receivedSongList.get(0) instanceof Song) {
             // Mapping Song objects (from MainActivity) to AudioModel for UI consistency
             for (Song song : receivedSongList) {
-                uiSongList.add(new AudioModel(song.getData(), song.getTitle(), "0", song.getArtist()));
+                String albumArtUri = ContentUris.withAppendedId(
+                        Uri.parse("content://media/external/audio/albumart"),
+                        song.getAlbumId()
+                ).toString();
+
+                uiSongList.add(
+                        new AudioModel(
+                                song.getData(),
+                                song.getTitle(),
+                                "0",
+                                song.getArtist(),
+                                albumArtUri
+                        )
+                );
             }
         } else if (receivedAudioModelList != null && !receivedAudioModelList.isEmpty()) {
             // Directly using AudioModel objects (e.g., from PlaylistDetailsActivity)
@@ -117,7 +138,9 @@ public class PlayerActivity extends AppCompatActivity {
             serviceIntent.putParcelableArrayListExtra("songList", getIntent().getParcelableArrayListExtra("songList"));
         }
         serviceIntent.putExtra("position", getIntent().getIntExtra("position", 0));
-        startService(serviceIntent);
+        if (!PlaybackService.isRunning) {
+            startService(serviceIntent);
+        }
 
         // Bind to the MediaSession in PlaybackService
         SessionToken sessionToken = new SessionToken(this, new ComponentName(this, PlaybackService.class));
@@ -229,6 +252,10 @@ public class PlayerActivity extends AppCompatActivity {
      * Updates the UI elements (text views, images) with information about the currently playing song.
      * @param controller The MediaController instance.
      */
+    /**
+     * Updates the UI elements (text views, images) with information about the currently playing song.
+     * @param controller The MediaController instance.
+     */
     private void updateUIForCurrentSong(MediaController controller) {
         if (controller == null || controller.getMediaItemCount() == 0) {
             return;
@@ -237,8 +264,25 @@ public class PlayerActivity extends AppCompatActivity {
         try {
             int currentIndex = controller.getCurrentMediaItemIndex();
 
-            if (uiSongList != null && !uiSongList.isEmpty() && currentIndex >= 0 && currentIndex < uiSongList.size()) {
+            if (uiSongList != null && !uiSongList.isEmpty()
+                    && currentIndex >= 0 && currentIndex < uiSongList.size()) {
+
                 AudioModel song = uiSongList.get(currentIndex);
+
+                // CLEAR PREVIOUS SONG STATE
+                // Without this, the previous blurred background remains
+                binding.albumArtBg.setRenderEffect(null);
+                binding.albumArtBg.setImageDrawable(null);
+                binding.albumArtPlayerImage.setImageDrawable(null);
+
+                // USE GLIDE ONLY (do NOT mix with setImageBitmap)
+                // This ensures the image refreshes on every song change
+                Glide.with(this)
+                        .load(song.getAlbumArt())
+                        .signature(new ObjectKey(song.getPath())) // Forces reload per song
+                        .placeholder(R.drawable.ic_music_note_24)
+                        .error(R.drawable.ic_music_note_24)
+                        .into(binding.albumArtPlayerImage);
 
                 binding.songTitleText.setText(song.getTitle());
                 binding.songTitleText.setSelected(true); // Enables marquee effect if text overflows
@@ -246,9 +290,32 @@ public class PlayerActivity extends AppCompatActivity {
                 binding.songArtistText.setSelected(true);
                 setTitle(song.getTitle());
 
-                // Static placeholders for artwork; could be replaced with dynamic loading
-                binding.albumArtPlayerImage.setImageResource(R.drawable.ic_music_note_24);
-                binding.albumArtBg.setImageResource(R.drawable.gradient_bg);
+                String albumArt = song.getAlbumArt();
+
+                if (albumArt != null && !albumArt.isEmpty()) {
+
+                    // LOAD BACKGROUND USING GLIDE (same source as foreground)
+                    Glide.with(this)
+                            .load(albumArt)
+                            .signature(new ObjectKey(song.getPath()))
+                            .placeholder(R.drawable.gradient_bg)
+                            .error(R.drawable.gradient_bg)
+                            .into(binding.albumArtBg);
+
+                    // APPLY BLUR ONLY AFTER IMAGE IS SET (Android 12+)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        binding.albumArtBg.setRenderEffect(
+                                RenderEffect.createBlurEffect(
+                                        45f, 45f, Shader.TileMode.CLAMP
+                                )
+                        );
+                    }
+
+                } else {
+                    // Fallback if no album art exists
+                    binding.albumArtPlayerImage.setImageResource(R.drawable.ic_music_note_24);
+                    binding.albumArtBg.setImageResource(R.drawable.gradient_bg);
+                }
 
                 updatePlayPauseButtonIcon();
             }
@@ -256,6 +323,7 @@ public class PlayerActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
 
     /**
      * Converts seconds into a mm:ss format string.

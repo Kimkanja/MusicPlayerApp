@@ -91,6 +91,7 @@ public class SongPickerActivity extends AppCompatActivity {
                 MediaStore.Audio.Media.TITLE,
                 MediaStore.Audio.Media.DURATION,
                 MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.ALBUM_ID,
         };
 
         // Filter for music files only
@@ -106,13 +107,20 @@ public class SongPickerActivity extends AppCompatActivity {
 
         if (cursor != null) {
             while (cursor.moveToNext()) {
+
+                long albumId = cursor.getLong(4);
+                String albumArtUri =
+                        "content://media/external/audio/albumart/" + albumId;
+
                 allSongsList.add(new AudioModel(
-                        cursor.getString(0),
-                        cursor.getString(1),
-                        cursor.getString(2),
-                        cursor.getString(3)
+                        cursor.getString(0), // path
+                        cursor.getString(1), // title
+                        cursor.getString(2), // duration
+                        cursor.getString(3), // artist
+                        albumArtUri           // album art
                 ));
             }
+
             cursor.close();
             songPickerAdapter.notifyDataSetChanged();
         }

@@ -86,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     setInProgress(false);
-                    Toast.makeText(getApplicationContext(), "Login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    showNoInternetDialog();
                 });
     }
 

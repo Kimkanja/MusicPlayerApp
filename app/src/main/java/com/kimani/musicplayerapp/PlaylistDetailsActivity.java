@@ -103,6 +103,7 @@ public class PlaylistDetailsActivity extends AppCompatActivity implements MusicA
         Log.d("PlaylistDetails", "Loading " + songPaths.size() + " songs for playlist: " + playlistName);
 
         if (!songPaths.isEmpty()) {
+
             // Build the SQL selection string and arguments for MediaStore query
             String[] selectionArgs = songPaths.toArray(new String[0]);
             StringBuilder selection = new StringBuilder();
@@ -118,6 +119,7 @@ public class PlaylistDetailsActivity extends AppCompatActivity implements MusicA
                     MediaStore.Audio.Media.TITLE,
                     MediaStore.Audio.Media.DURATION,
                     MediaStore.Audio.Media.ARTIST,
+                    MediaStore.Audio.Media.ALBUM_ID,
             };
 
             // Query MediaStore for metadata of the files in the playlist
@@ -129,15 +131,29 @@ public class PlaylistDetailsActivity extends AppCompatActivity implements MusicA
                     null
             );
 
+            // FIX: Always check cursor is not null and move before reading data
             if (cursor != null) {
+
                 while (cursor.moveToNext()) {
+
+                    // FIX: Read albumId SAFELY per row
+                    int albumIdCol = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
+                    long albumId = albumIdCol != -1 ? cursor.getLong(albumIdCol) : -1;
+
+                    // FIX: Build album art URI per song
+                    String albumArtUri = albumId != -1
+                            ? "content://media/external/audio/albumart/" + albumId
+                            : null;
+
                     songsInPlaylist.add(new AudioModel(
-                            cursor.getString(0),
-                            cursor.getString(1),
-                            cursor.getString(2),
-                            cursor.getString(3)
+                            cursor.getString(0), // path
+                            cursor.getString(1), // title
+                            cursor.getString(2), // duration
+                            cursor.getString(3), // artist
+                            albumArtUri           // album art
                     ));
                 }
+
                 cursor.close();
             }
         }

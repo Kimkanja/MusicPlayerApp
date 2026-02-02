@@ -83,7 +83,7 @@ public class SignupActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     setInProgress(false);
-                    Toast.makeText(getApplicationContext(), "Registration failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    showNoInternetDialog();
                 });
     }
 

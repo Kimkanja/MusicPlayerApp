@@ -9,10 +9,14 @@ import android.os.Parcelable;
  * It implements Parcelable to allow efficient passing of song data between Activities.
  */
 public class AudioModel implements Parcelable {
+
     private String path;     // Absolute file system path to the audio file
     private String title;    // Name of the song
     private String duration; // Length of the track in milliseconds (stored as String)
     private String artist;   // Name of the artist or performer
+
+    // Album art reference (can be a local MediaStore URI or a remote URL)
+    private String albumArt;
 
     /**
      * Standard constructor for creating an AudioModel instance.
@@ -21,12 +25,14 @@ public class AudioModel implements Parcelable {
      * @param title    The title of the song.
      * @param duration The duration of the song.
      * @param artist   The artist of the song.
+     * @param albumArt Album art URI (local or remote)
      */
-    public AudioModel(String path, String title, String duration, String artist) {
+    public AudioModel(String path, String title, String duration, String artist, String albumArt) {
         this.path = path;
         this.title = title;
         this.duration = duration;
         this.artist = artist;
+        this.albumArt = albumArt;
     }
 
     // --- Parcelable Implementation ---
@@ -41,6 +47,7 @@ public class AudioModel implements Parcelable {
         title = in.readString();
         duration = in.readString();
         artist = in.readString();
+        albumArt = in.readString();
     }
 
     /**
@@ -70,6 +77,7 @@ public class AudioModel implements Parcelable {
         dest.writeString(title);
         dest.writeString(duration);
         dest.writeString(artist);
+        dest.writeString(albumArt);
     }
 
     // --- Getter Methods ---
@@ -88,5 +96,13 @@ public class AudioModel implements Parcelable {
 
     public String getArtist() {
         return artist;
+    }
+
+    /**
+     * Returns the album art reference for this song.
+     * Can be a local content URI or a remote URL.
+     */
+    public String getAlbumArt() {
+        return albumArt;
     }
 }

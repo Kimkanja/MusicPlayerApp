@@ -25,6 +25,12 @@ public class PlaybackService extends MediaLibraryService {
 
     private MediaLibrarySession mediaLibrarySession;
     private ExoPlayer player;
+    //TRACK CURRENT PLAYBACK STATE
+    public static int currentIndex = -1;
+    private boolean hasInitializedQueue = false;
+    public static boolean isRunning = false;
+
+
 
     @Override
     public void onCreate() {
@@ -32,7 +38,14 @@ public class PlaybackService extends MediaLibraryService {
         
         // Initialize ExoPlayer
         player = new ExoPlayer.Builder(this).build();
-        
+        player.addListener(new androidx.media3.common.Player.Listener() {
+            @Override
+            public void onMediaItemTransition(MediaItem mediaItem, int reason) {
+                currentIndex = player.getCurrentMediaItemIndex();
+            }
+        });
+
+
         // Initialize MediaLibrarySession with a callback to handle browser interactions
         mediaLibrarySession = new MediaLibrarySession.Builder(this, player, new MediaLibrarySession.Callback() {
             @Override
@@ -111,10 +124,31 @@ public class PlaybackService extends MediaLibraryService {
 
             // If media items were parsed successfully, set them to the player and start
             if (!mediaItems.isEmpty()) {
-                player.setMediaItems(mediaItems, position, 0);
-                player.prepare();
-                player.play();
+
+                // CASE 1: First time ever → initialize queue
+                if (!hasInitializedQueue) {
+
+                    player.setMediaItems(mediaItems, position, 0);
+                    player.prepare();
+                    player.play();
+
+                    hasInitializedQueue = true;
+                    currentIndex = position;
+                    return START_STICKY;
+                }
+
+                // CASE 2: User clicked a DIFFERENT song
+                if (position != currentIndex) {
+
+                    player.seekTo(position, 0);
+                    player.play();
+                    currentIndex = position;
+                }
+
+                // CASE 3: Same song clicked → DO NOTHING
             }
+
+
         }
         return super.onStartCommand(intent, flags, startId);
     }

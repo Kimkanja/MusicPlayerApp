@@ -1,16 +1,24 @@
 package com.kimani.musicplayerapp;
 
+import android.Manifest;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.RenderEffect;
 import android.graphics.Shader;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -45,6 +53,11 @@ public class PlayerActivity extends AppCompatActivity {
     private List<AudioModel> uiSongList = new ArrayList<>();
     private boolean isShuffle = false;
     private boolean isRepeat = false;
+    private ObjectAnimator albumRotateAnimator;
+    private ObjectAnimator albumPulseX;
+    private ObjectAnimator albumPulseY;
+    private AnimatorSet albumAnimatorSet;
+
 
     /**
      * Periodic task to update the seekbar and elapsed time text while music is playing.
@@ -80,6 +93,11 @@ public class PlayerActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         binding = ActivityPlayerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        setupAlbumRotation();
+
+
+        checkAndRequestAudioPermission();
+
 
         handler = new Handler(Looper.getMainLooper());
 
@@ -110,11 +128,6 @@ public class PlayerActivity extends AppCompatActivity {
             uiSongList.addAll(receivedAudioModelList);
         }
 
-        if (uiSongList.isEmpty()) {
-            Toast.makeText(this, "No Songs Found!", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
 
         // Initialize waveform UI component with dummy data
         binding.waveformSeekBar.setWaveform(createWaveform(), true);
@@ -152,6 +165,15 @@ public class PlayerActivity extends AppCompatActivity {
                 mediaController.addListener(playerListener);
                 updateUIForCurrentSong(mediaController); // Initial UI update
                 handler.post(updateRunnable);
+
+                //  animation when opened from notification
+                if (mediaController.isPlaying()) {
+                    albumRotateAnimator.start();
+                    if (!albumAnimatorSet.isRunning()) {
+                        albumAnimatorSet.start();
+                    }
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -164,6 +186,13 @@ public class PlayerActivity extends AppCompatActivity {
     private final Player.Listener playerListener = new Player.Listener() {
         @Override
         public void onMediaItemTransition(@androidx.annotation.Nullable MediaItem mediaItem, int reason) {
+            if (albumAnimatorSet != null) {
+                albumAnimatorSet.cancel();
+                binding.albumArtPlayerImage.setRotation(0f);
+                binding.albumArtPlayerImage.setScaleX(1f);
+                binding.albumArtPlayerImage.setScaleY(1f);
+            }
+
             if (mediaControllerFuture.isDone()) {
                 try {
                     updateUIForCurrentSong(mediaControllerFuture.get());
@@ -179,8 +208,14 @@ public class PlayerActivity extends AppCompatActivity {
             updatePlayPauseButtonIcon();
             if (isPlaying) {
                 handler.post(updateRunnable);
+                albumRotateAnimator.start();
+                if (!albumAnimatorSet.isRunning()) {
+                    albumAnimatorSet.start();
+                }
             } else {
                 handler.removeCallbacks(updateRunnable);
+                albumRotateAnimator.pause();
+                albumAnimatorSet.pause();
             }
         }
     };
@@ -220,6 +255,57 @@ public class PlayerActivity extends AppCompatActivity {
         binding.backBtn.setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
     }
 
+    private void setupAlbumRotation() {
+
+        // ROTATION
+        albumRotateAnimator = ObjectAnimator.ofFloat(
+                binding.albumArtPlayerImage,
+                "rotation",
+                0f,
+                360f
+        );
+        albumRotateAnimator.setDuration(15000);
+        albumRotateAnimator.setInterpolator(new LinearInterpolator());
+        albumRotateAnimator.setRepeatCount(ValueAnimator.INFINITE);
+
+        // HEARTBEAT (SCALE X & Y)
+        albumPulseX = ObjectAnimator.ofFloat(
+                binding.albumArtPlayerImage,
+                "scaleX",
+                1f,
+                1.08f,
+                1f
+        );
+        albumPulseX.setDuration(2200);
+        albumPulseX.setRepeatCount(ValueAnimator.INFINITE);
+        albumPulseX.setRepeatMode(ValueAnimator.RESTART);
+        albumPulseX.setInterpolator(new AccelerateDecelerateInterpolator());
+
+
+        albumPulseY = ObjectAnimator.ofFloat(
+                binding.albumArtPlayerImage,
+                "scaleY",
+                1f,
+                1.08f,
+                1f
+        );
+        albumPulseY.setDuration(2200);
+        albumPulseY.setRepeatCount(ValueAnimator.INFINITE);
+        albumPulseY.setRepeatMode(ValueAnimator.RESTART);
+        albumPulseY.setInterpolator(new AccelerateDecelerateInterpolator());
+
+
+        // COMBINE ROTATION + HEARTBEAT
+        albumAnimatorSet = new AnimatorSet();
+        albumAnimatorSet.playTogether(
+                albumRotateAnimator,
+                albumPulseX,
+                albumPulseY
+        );
+    }
+
+
+
     /**
      * Toggles the repeat mode between REPEAT_MODE_ONE and REPEAT_MODE_OFF.
      */
@@ -257,6 +343,25 @@ public class PlayerActivity extends AppCompatActivity {
      * @param controller The MediaController instance.
      */
     private void updateUIForCurrentSong(MediaController controller) {
+        if (uiSongList.isEmpty()) {
+            for (int i = 0; i < controller.getMediaItemCount(); i++) {
+                MediaItem item = controller.getMediaItemAt(i);
+
+                Uri artworkUri = item.mediaMetadata.artworkUri;
+
+                uiSongList.add(
+                        new AudioModel(
+                                item.localConfiguration.uri.toString(),
+                                String.valueOf(item.mediaMetadata.title),
+                                "0",
+                                String.valueOf(item.mediaMetadata.artist),
+                                artworkUri != null ? artworkUri.toString() : null
+                        )
+                );
+            }
+        }
+
+
         if (controller == null || controller.getMediaItemCount() == 0) {
             return;
         }
@@ -278,7 +383,11 @@ public class PlayerActivity extends AppCompatActivity {
                 // USE GLIDE ONLY (do NOT mix with setImageBitmap)
                 // This ensures the image refreshes on every song change
                 Glide.with(this)
-                        .load(song.getAlbumArt())
+                        .load(
+                                song.getAlbumArt() != null && song.getAlbumArt().startsWith("content://")
+                                        ? Uri.parse(song.getAlbumArt())
+                                        : song.getAlbumArt()
+                        )
                         .signature(new ObjectKey(song.getPath())) // Forces reload per song
                         .placeholder(R.drawable.ic_music_note_24)
                         .error(R.drawable.ic_music_note_24)
@@ -290,32 +399,57 @@ public class PlayerActivity extends AppCompatActivity {
                 binding.songArtistText.setSelected(true);
                 setTitle(song.getTitle());
 
-                String albumArt = song.getAlbumArt();
+                Object albumArtSource = null;
 
-                if (albumArt != null && !albumArt.isEmpty()) {
+// 1️⃣ EMBEDDED ART (MOST IMPORTANT — fixes real phones)
+                byte[] embeddedArt = getEmbeddedAlbumArt(song.getPath());
+                if (embeddedArt != null) {
+                    albumArtSource = embeddedArt;
+                }
 
-                    // LOAD BACKGROUND USING GLIDE (same source as foreground)
+// 2️⃣ CONTENT URI
+                else if (song.getAlbumArt() != null && song.getAlbumArt().startsWith("content://")) {
+                    albumArtSource = Uri.parse(song.getAlbumArt());
+                }
+
+// 3️⃣ ONLINE URL
+                else if (song.getAlbumArt() != null && song.getAlbumArt().startsWith("http")) {
+                    albumArtSource = song.getAlbumArt();
+                }
+
+// 4️⃣ LOAD RESULT
+                if (albumArtSource != null) {
+
                     Glide.with(this)
-                            .load(albumArt)
+                            .load(albumArtSource)
+                            .signature(new ObjectKey(song.getPath()))
+                            .placeholder(R.drawable.ic_music_note_24)
+                            .error(R.drawable.ic_music_note_24)
+                            .into(binding.albumArtPlayerImage);
+
+                    Glide.with(this)
+                            .load(albumArtSource)
                             .signature(new ObjectKey(song.getPath()))
                             .placeholder(R.drawable.gradient_bg)
                             .error(R.drawable.gradient_bg)
                             .into(binding.albumArtBg);
 
-                    // APPLY BLUR ONLY AFTER IMAGE IS SET (Android 12+)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         binding.albumArtBg.setRenderEffect(
-                                RenderEffect.createBlurEffect(
-                                        45f, 45f, Shader.TileMode.CLAMP
-                                )
+                                RenderEffect.createBlurEffect(45f, 45f, Shader.TileMode.CLAMP)
                         );
                     }
 
                 } else {
-                    // Fallback if no album art exists
                     binding.albumArtPlayerImage.setImageResource(R.drawable.ic_music_note_24);
                     binding.albumArtBg.setImageResource(R.drawable.gradient_bg);
+
+                    // AUTO-DOWNLOAD IF EVERYTHING FAILED
+                    fetchOnlineAlbumArt(song);
                 }
+
+
+
 
                 updatePlayPauseButtonIcon();
             }
@@ -355,6 +489,74 @@ public class PlayerActivity extends AppCompatActivity {
             );
         } catch (Exception e) { e.printStackTrace(); }
     }
+
+    private void checkAndRequestAudioPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+
+            List<String> permissionsNeeded = new ArrayList<>();
+
+            if (checkSelfPermission(Manifest.permission.READ_MEDIA_AUDIO)
+                    != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.READ_MEDIA_AUDIO);
+            }
+
+            if (checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES)
+                    != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.READ_MEDIA_IMAGES);
+            }
+
+            if (!permissionsNeeded.isEmpty()) {
+                requestPermissions(
+                        permissionsNeeded.toArray(new String[0]),
+                        1001
+                );
+            }
+
+        } else {
+            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        1001
+                );
+            }
+        }
+    }
+
+    private byte[] getEmbeddedAlbumArt(String filePath) {
+        try {
+            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+            retriever.setDataSource(filePath);
+            byte[] art = retriever.getEmbeddedPicture();
+            retriever.release();
+            return art;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private void fetchOnlineAlbumArt(AudioModel song) {
+
+        String query = song.getArtist() + " " + song.getTitle();
+        String url = "https://itunes.apple.com/search?term=" +
+                Uri.encode(query) +
+                "&entity=song&limit=1";
+
+        Glide.with(this)
+                .load(url)
+                .into(binding.albumArtPlayerImage);
+
+        Glide.with(this)
+                .load(url)
+                .into(binding.albumArtBg);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            binding.albumArtBg.setRenderEffect(
+                    RenderEffect.createBlurEffect(45f, 45f, Shader.TileMode.CLAMP)
+            );
+        }
+    }
+
 
     @Override
     protected void onStop() {

@@ -1,5 +1,6 @@
 package com.kimani.musicplayerapp;
 import android.app.PendingIntent;
+import android.content.ContentUris;
 import android.content.Intent;
 import android.net.Uri;
 import androidx.media3.common.MediaItem;
@@ -29,6 +30,8 @@ public class PlaybackService extends MediaLibraryService {
     public static int currentIndex = -1;
     private boolean hasInitializedQueue = false;
     public static boolean isRunning = false;
+    private List<MediaItem> currentQueue = new ArrayList<>();
+
 
 
 
@@ -96,31 +99,51 @@ public class PlaybackService extends MediaLibraryService {
                 ArrayList<AudioModel> songList = intent.getParcelableArrayListExtra("songList");
                 if (songList != null && !songList.isEmpty()) {
                     for (AudioModel song : songList) {
-                        mediaItems.add(new MediaItem.Builder()
-                                .setUri(Uri.parse(song.getPath()))
-                                .setMediaMetadata(new MediaMetadata.Builder()
-                                        .setTitle(song.getTitle())
-                                        .setArtist(song.getArtist())
-                                        .build())
-                                .build());
+
+                        mediaItems.add(
+                                new MediaItem.Builder()
+                                        .setUri(Uri.parse(song.getPath()))
+                                        .setMediaId(song.getPath())
+                                        .setMediaMetadata(
+                                                new MediaMetadata.Builder()
+                                                        .setTitle(song.getTitle())
+                                                        .setArtist(song.getArtist())
+                                                        .build()
+                                        )
+                                        .build()
+                        );
                     }
                 }
-            } 
+            }
+
             // Handle starting playback from the main local song list
             else if (action.equals("ACTION_START_FROM_MAIN")) {
                 ArrayList<Song> songList = intent.getParcelableArrayListExtra("songList");
                 if (songList != null && !songList.isEmpty()) {
                     for (Song song : songList) {
-                        mediaItems.add(new MediaItem.Builder()
-                                .setUri(Uri.parse(song.getData()))
-                                .setMediaMetadata(new MediaMetadata.Builder()
-                                        .setTitle(song.getTitle())
-                                        .setArtist(song.getArtist())
-                                        .build())
-                                .build());
+
+                        Uri albumArtUri = ContentUris.withAppendedId(
+                                Uri.parse("content://media/external/audio/albumart"),
+                                song.getAlbumId()
+                        );
+
+                        mediaItems.add(
+                                new MediaItem.Builder()
+                                        .setUri(Uri.parse(song.getData()))
+                                        .setMediaId(song.getData())
+                                        .setMediaMetadata(
+                                                new MediaMetadata.Builder()
+                                                        .setTitle(song.getTitle())
+                                                        .setArtist(song.getArtist())
+                                                        .setArtworkUri(albumArtUri)
+                                                        .build()
+                                        )
+                                        .build()
+                        );
                     }
                 }
             }
+
 
             // If media items were parsed successfully, set them to the player and start
             if (!mediaItems.isEmpty()) {
@@ -137,15 +160,27 @@ public class PlaybackService extends MediaLibraryService {
                     return START_STICKY;
                 }
 
-                // CASE 2: User clicked a DIFFERENT song
-                if (position != currentIndex) {
+                // CASE 2: User clicked a DIFFERENT song either from the main list or from the playlist (search, playlist, etc.)
+                if (!mediaItems.equals(currentQueue)) {
+
+                    player.setMediaItems(mediaItems, position, 0);
+                    player.prepare();
+                    player.play();
+
+                    currentQueue.clear();
+                    currentQueue.addAll(mediaItems);
+
+                    currentIndex = position;
+
+                }
+                // CASE 3: Same list, different song
+                else if (position != currentIndex) {
 
                     player.seekTo(position, 0);
                     player.play();
+
                     currentIndex = position;
                 }
-
-                // CASE 3: Same song clicked → DO NOTHING
             }
 
 
